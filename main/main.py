@@ -39,4 +39,4 @@ async def on_message(message):
 
 client.run(token)
 
-await client.change_presence(activity=discord.Game(name="KetanBot Beta Ver."))
+# await client.change_presence(activity=discord.Game(name="KetanBot Beta Ver."))
