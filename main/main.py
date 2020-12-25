@@ -23,11 +23,17 @@ botReleaseBeta = botReleaseStatus == 'beta'
 botReleaseRC = botReleaseStatus == 'rc'
 botReleaseStable = botReleaseStatus == 'stable'
 output = ''
+admin_confirm = None
 
 def read_sc_token():
-    with open('main/token', 'r') as token_file:
-        lines = token_file.readlines()
-        return lines[0].strip()
+    try:
+        with open('main/token', 'r') as token_file:
+            lines = token_file.readlines()
+            return lines[0].strip()
+    except:
+        with open('token', 'r') as token_file:
+            lines = token_file.readlines()
+            return lines[0].strip()    
 
 # Logs available on alpha release for development purpose only
 def bot_log(user, command, output=None, error=None):
@@ -74,8 +80,15 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    global admin_confirm
     output = ''
     # try:
+    if message.content.lower() == 'yes' or message.content.lower() == 'no':
+        if admin_confirm == 'shutdown':
+            if message.content.lower() == 'yes':
+                exit()
+            else:
+                admin_confirm = None
     if message.author == client.user:
         return
     if message.content.startswith(command_prefix):
@@ -116,11 +129,24 @@ async def on_message(message):
 
         elif command == "knock":
             output = "Who's there?"
-            await message.channel.send("Who's there?")
+            #await message.channel.send("Who's there?")
+            #return
+        else:
+            output = 'Are you talking to me? I haven\'t learned that command before.'
+            #await message.channel.send('Are you talking to me? I haven\'t learned that command before')
         bot_log(f'{message.author.name}#{message.author.discriminator}', message.content, output)
         await message.channel.send(output)
     # except Exception as error:
         # bot_log(f'{message.author.name}#{message.author.discriminator}', message.content, error=error)
+    elif message.content.startswith('##'):
+        print(f'[DEV] Dev message on {message.channel}: {message.author}')
+        _user_input = re.search(rf'^##(?P<command>\S*)', message.content)
+        user_input = _user_input.groupdict()
+        command = user_input['command'].lower()
+        if command == 'shutdown':
+            admin_confirm = 'shutdown'
+            await message.channel.send('Confirm shutdown (yes/no)')
+            
 
 client.run(token)
 
