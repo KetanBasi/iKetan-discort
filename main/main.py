@@ -1,8 +1,10 @@
-import re, os, discord
+import re, os, discord, config
+from discord import state
 from discord import message
 import discord.ext
-from datetime import datetime as dateTime
-from datetime import time
+from datetime import datetime
+from config import RelAlpha, RelBeta
+# from datetime import time
 # from modules import say
 # import components.modules as mcon
 
@@ -11,17 +13,6 @@ from datetime import time
 # Use link above, change the <Bot Client ID> with
 #  your Bot Client ID on Discord Developers page
 
-# value (always lowercase):
-#   - alpha
-#   - beta
-#   - rc
-#   - stable
-botReleaseStatus = 'alpha'
-
-botReleaseAlpha = botReleaseStatus == 'alpha'
-botReleaseBeta = botReleaseStatus == 'beta'
-botReleaseRC = botReleaseStatus == 'rc'
-botReleaseStable = botReleaseStatus == 'stable'
 output = ''
 admin_confirm = None
 
@@ -37,17 +28,17 @@ def read_sc_token():
 
 # Logs available on alpha release for development purpose only
 def bot_log(user, command, output=None, error=None):
-    if botReleaseAlpha:
+    if RelAlpha or RelBeta:
         if user != None:
             user = f'user[{user}]: '
         if command != None:
             command = f'running command: [{command}]'
         with open('bot.log', 'a') as logFile:
             if error != None:
-                logFile.write(f'''[{dateTime.now()}]: ERROR: {error}
+                logFile.write(f'''[{datetime.now()}]: ERROR: {error}
                 \t{user}{command}\n''')
             else:
-                logFile.write(f'''[{dateTime.now()}]: {user}{command}
+                logFile.write(f'''[{datetime.now()}]: {user}{command}
                 Success output: [{output}]\n''')
 
 token = read_sc_token()
@@ -75,23 +66,43 @@ def embed(description, title=None, colour=discord_color.orange(), *fields):
     return _message
 
 @client.event
-async def on_ready():
+async def on_ready():   
+    # ANCHOR: Login status
     print("We have logged in as {0.user}".format(client))
+    # ANCHOR: Change Presence
+    # game = discord.Game("with the API")
+    # await client.change_presence(status=discord.Status.idle, activity=game)
+    # await client.change_presence(status=discord.Status.online, activity=discord.Game(name="KetanBot Beta Alpha 1.0.4", state='In Game', party={'id': 0, 'size': [5, 5]}))
+    await client.change_presence(status=discord.Status.online, activity=discord.Game(name='KetanBot-X on my own device'))
+    # await client.change_presence(status=discord.Status.online, activity=discord.Activity(name='The duck', type=discord.ActivityType.playing, state='Co-op Party', details='Co-op Mode', timestamps={'start': 0}, large_image_text='What?', large_image_url=config.presence_image_url, small_image_text='What?', small_image_url=config.presence_image_url, party={'id': 'ae488379-351d-4a4f-ad32-2b9b01c91657', 'size': [2, 2]}))
 
 @client.event
 async def on_message(message):
     global admin_confirm
     output = ''
-    # try:
+    # ANCHOR: Ignore self-message
+    if message.author == client.user:
+        print(f'{message.author} {client.user}')
+        return
+    # ANCHOR: Detect yes/no confirmation
     if message.content.lower() == 'yes' or message.content.lower() == 'no':
         if admin_confirm == 'shutdown':
             if message.content.lower() == 'yes':
                 exit()
             else:
                 admin_confirm = None
-    if message.author == client.user:
-        return
-    if message.content.startswith(command_prefix):
+    # SECTION: Admin command
+    elif message.content.startswith('##'):
+        print(f'[DEV] Dev message on {message.channel}: {message.author}')
+        _user_input = re.search(rf'^##(?P<command>\S*)', message.content)
+        user_input = _user_input.groupdict()
+        command = user_input['command'].lower()
+        if command == 'shutdown':
+            admin_confirm = 'shutdown'
+            await message.channel.send('Confirm shutdown (yes/no)')
+    # !SECTION: Admin command
+    # SECTION: User command
+    elif message.content.startswith(command_prefix):
         # commands = message.content.split()
         # command = commands[0][1:].lower()
         print(f'{message.channel} {message.author}')
@@ -103,6 +114,7 @@ async def on_message(message):
         if command == 'join':
             # Do something
             return
+
         elif command == 'say':
             if the_rest == '':
                 __embed = embed(man__say, f'Command manual: {command_prefix}say')
@@ -110,6 +122,7 @@ async def on_message(message):
                 await message.channel.send(content=None, embed=__embed)
                 # bot_log(f'{message.author.name}#{message.author.discriminator}', message.content)
                 return
+
             the_channel = re.search(rf'<#(?P<the_channel>[0-9]+)>', the_rest)
             if the_channel != None:
                 the_channel = the_channel.groupdict()['the_channel']
@@ -121,33 +134,20 @@ async def on_message(message):
                 bot_log(f'{message.author.name}#{message.author.discriminator}', message.content, output=user_message)
                 await target_channel.send(user_message)
                 return
+
             else:
                 output = the_rest
-                # await message.channel.send(the_rest)
-                # bot_log(f'{message.author.name}#{message.author.discriminator}', message.content)
-                # await message.channel.send(mcon.say(the_rest))
 
         elif command == "knock":
             output = "Who's there?"
-            #await message.channel.send("Who's there?")
-            #return
+
         else:
             output = 'Are you talking to me? I haven\'t learned that command before.'
-            #await message.channel.send('Are you talking to me? I haven\'t learned that command before')
+
         bot_log(f'{message.author.name}#{message.author.discriminator}', message.content, output)
         await message.channel.send(output)
-    # except Exception as error:
-        # bot_log(f'{message.author.name}#{message.author.discriminator}', message.content, error=error)
-    elif message.content.startswith('##'):
-        print(f'[DEV] Dev message on {message.channel}: {message.author}')
-        _user_input = re.search(rf'^##(?P<command>\S*)', message.content)
-        user_input = _user_input.groupdict()
-        command = user_input['command'].lower()
-        if command == 'shutdown':
-            admin_confirm = 'shutdown'
-            await message.channel.send('Confirm shutdown (yes/no)')
+    # !SECTION: User command
             
 
 client.run(token)
 
-# await client.change_presence(activity=discord.Game(name="KetanBot Beta Ver."))
