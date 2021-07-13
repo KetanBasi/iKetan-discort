@@ -1,4 +1,5 @@
 import typing
+
 import discord
 from discord.ext import commands
 
@@ -8,6 +9,7 @@ from modules.core.c_core import is_owner
 
 class System(commands.Cog):
     """System-related commands"""
+
     def __init__(self, client):
         self.client = client
 
@@ -23,7 +25,7 @@ class System(commands.Cog):
         Command: `[bo]shutdown`
         Example: `{1}shutdown`
         """
-        await ctx.send(f'Shutting down {botName}')
+        await ctx.send(f"Shutting down {botName}")
         await self.client.close()
 
     @commands.command()
@@ -35,7 +37,7 @@ class System(commands.Cog):
         Command: `[bo]runEval print(int('1') + int('1'))`
         Example: `{1}runEval print(int('1') + int('1'))`
         """
-        await ctx.send(f'> Your eval result:\n```{eval(evalCommand)}```')
+        await ctx.send(f"> Your eval result:\n```{eval(evalCommand)}```")
 
     @commands.command()
     @commands.is_owner()
@@ -50,7 +52,7 @@ class System(commands.Cog):
             _id = user.id
         else:
             _id = ctx.message.author.id
-        await ctx.send(f'id: `{_id}`')
+        await ctx.send(f"id: `{_id}`")
 
     @commands.command()
     @commands.is_owner()
