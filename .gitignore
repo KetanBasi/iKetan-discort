@@ -1,0 +1,10 @@
+__pycache__/
+.iketan_env/
+.vscode/
+.idea/
+.old/
+temp/
+*.log
+*.pyc
+owner
+/.env
