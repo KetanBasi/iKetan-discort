@@ -69,8 +69,12 @@ class Help(commands.Cog):
                     for command in self.client.get_cog(cog).get_commands():
                         if not command.hidden:
                             availableCommands += f'\n ► {command.name}'
-                    embed.add_field(name=f'\n ► {command.name}',
-                                    value='',
+                    # embed.add_field(name=f'\n ► {command.name}',
+                    #                 value='',
+                    #                 inline=False
+                    #                 )
+                    embed.add_field(name=f'Available Commands:',
+                                    value=availableCommands,
                                     inline=False
                                     )
                     break
