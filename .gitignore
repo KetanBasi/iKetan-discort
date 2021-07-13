@@ -1,6 +1,10 @@
-*.log
-log.txt
-temp/
 __pycache__/
-*.pyc
+.iketan_env/
 .vscode/
+.idea/
+.old/
+temp/
+*.log
+*.pyc
+owner
+/.env
