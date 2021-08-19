@@ -81,7 +81,7 @@ class Help(commands.Cog):
             elif len(keyword) == 1:
     
                 for cog in self.client.cogs:
-                    
+
                     # ? If user requested info about a category / cog
                     if cog.lower() == keyword[0].lower():
                         availableCommands = ""
@@ -100,35 +100,32 @@ class Help(commands.Cog):
                             inline=False
                             )
                         break
-    
-                    # ? If user requested info about a specific command
-                    else:
-                        commandFound = False
-                        for command in self.client.get_cog(cog).get_commands():
-                            if (not command.hidden)\
-                                    and (command.name.lower() == keyword[0].lower()):
-                                command_help = command.help
-                                try:
-                                    command_help = command_help.format(this_bot.prefix, this_bot.admin_prefix)
-                                
-                                except AttributeError:
-                                    pass
-                                
-                                commandFound = True
-                                embed = discord.Embed(
-                                    title=f"Command: {command.name}",
-                                    value=command.help,
-                                    inline=False
-                                    )
-                                embed.add_field(
-                                    name=f"{this_bot.prefix}{command.name}",
-                                    value=command_help,
-                                    inline=False
-                                    )
-                                break
-                        
-                        if commandFound:
+                    commandFound = False
+                    for command in self.client.get_cog(cog).get_commands():
+                        if (not command.hidden)\
+                                                        and (command.name.lower() == keyword[0].lower()):
+                            command_help = command.help
+                            try:
+                                command_help = command_help.format(this_bot.prefix, this_bot.admin_prefix)
+        
+                            except AttributeError:
+                                pass
+        
+                            commandFound = True
+                            embed = discord.Embed(
+                                title=f"Command: {command.name}",
+                                value=command.help,
+                                inline=False
+                                )
+                            embed.add_field(
+                                name=f"{this_bot.prefix}{command.name}",
+                                value=command_help,
+                                inline=False
+                                )
                             break
+                        
+                    if commandFound:
+                        break
     
                 # ? If user's request not found
                 else:
