@@ -1,5 +1,6 @@
 import ast
 import typing
+
 import discord
 from discord.ext import commands
 
@@ -10,7 +11,7 @@ class System(commands.Cog):
     """
     System-related commands, accessible to bot owner-only.
     """
-    
+
     def __init__(self, client):
         self.client = client
 
@@ -26,8 +27,8 @@ class System(commands.Cog):
         ***Usage***: `[bo]shutdown`
         ***Example***: `{1}shutdown`
         """
-        print(f"⇒ shutdown invoked")
-        await ctx.send(f'Shutting down {this_bot.name}')
+        print("⇒ shutdown invoked")
+        await ctx.send(f"Shutting down {this_bot.name}")
         await self.client.close()
 
     @commands.command()
@@ -42,14 +43,14 @@ class System(commands.Cog):
         evalResult = eval(evalCommand)
         print(f"⇒ eval invoked: {evalCommand}")
         print(f"⇒   result: {eval(evalCommand)}")
-        await ctx.send(f'> Your eval result:\n```{evalResult}```')
-    
+        await ctx.send(f"> Your eval result:\n```{evalResult}```")
+
     @commands.command()
     @commands.is_owner()
     async def xec(self, ctx, *, execCommand):
         """
         Exec a command
-        
+
         ***Usage***: `[bo]xec <command>`
         ***Example***: `{1}xec my_name = "you"`
         """
@@ -74,7 +75,7 @@ class System(commands.Cog):
             _id = user.id
         else:
             _id = ctx.message.author.id
-        await ctx.send(f'id: `{_id}`')
+        await ctx.send(f"id: `{_id}`")
 
     @commands.command()
     @commands.is_owner()
