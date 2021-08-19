@@ -13,40 +13,6 @@ class Messaging(commands.Cog):
     @commands.command()
     async def say(
             self, ctx,
-            channel: Optional[discord.TextChannel] = None,
-            user: Optional[discord.Member] = None,
-            *, text: Optional[str] = None
-            ):
-        """
-        Make the bot say something
-
-        ***Usage***: `[p]say [target/location] <your words>` where [p] is bot prefix
-        ***Example***: `{0}say Hi!` or `{0}say #bot Hello!`
-        """
-        async with ctx.typing():
-            if text is not None:
-                if channel is not None:
-                    await channel.send(text)
-                elif user is not None:
-                    await user.send(text)
-                else:
-                    await ctx.send(text)
-            else:
-                await ctx.send('No message assigned')
-
-    @commands.command()
-    async def hi(self, ctx):
-        """
-        Say hi to the bot
-
-        ***Usage***: `[p]hi` where [p] is bot prefix
-        ***Example***: `{0}hi`
-        """
-        await ctx.send(f'Hi, {ctx.message.author.display_name}!')
-
-    @commands.command()
-    async def say(
-            self, ctx,
             target: Optional[Union[discord.User, discord.Guild]],
             *, message: str
             ):
