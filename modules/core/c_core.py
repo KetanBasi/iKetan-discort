@@ -1,16 +1,17 @@
-import os
-import random
-import platform
-import tempfile
 import configparser
+import os
+import platform
+import random
+import tempfile
+from datetime import datetime
 from typing import List, Union
 from typing.io import TextIO
-from datetime import datetime
 
 main_location = os.path.normpath(f"{os.path.dirname(__file__)}/../..")
 
 if ".env" in os.listdir(main_location):
     from dotenv import load_dotenv
+
     # ? Load .env file
     load_dotenv(main_location)
 
@@ -55,9 +56,16 @@ cycle_status_delay  = 5000
 
 class BotInfo:
     def __init__(
-            self, name, version, description, owner, prefix, adminPrefix,
-            cycleStatus, CStatusDelay
-            ):
+        self,
+        name,
+        version,
+        description,
+        owner,
+        prefix,
+        adminPrefix,
+        cycleStatus,
+        CStatusDelay,
+    ):
         self.name = name
         self.version = version
         self.description = description
@@ -66,7 +74,7 @@ class BotInfo:
         self.admin_prefix = adminPrefix
         self.cycle_status = cycleStatus
         self.cycle_status_delay = CStatusDelay
-    
+
     def __str__(self):
         return self.name
 
@@ -81,7 +89,7 @@ def is_owner(user) -> bool:
     """
     Check if user is bot owner
     """
-    owners = get_token('owner')
+    owners = get_token("owner")
     return user in owners
 
 
@@ -90,11 +98,11 @@ def read_file(file, raw=False) -> Union[TextIO, List[str], None]:
     To read a file, get either raw file or list of lines
     """
     try:
-        with open(file, 'r') as _file:
+        with open(file, "r") as _file:
             if raw:
                 return _file
             return [i.strip() for i in _file.readlines()]
-    
+
     except FileNotFoundError:
         return None
 
@@ -103,7 +111,7 @@ def get_random(file) -> str:
     """
     Get random line from a file
     """
-    word_list = read_file(f'assets/{file}')
+    word_list = read_file(f"assets/{file}")
     return random.choice(word_list)
 
 
@@ -112,10 +120,10 @@ def create_config(mode) -> bool:
     create config file and fill it with provided default value
     """
     try:
-        with open('config.ini', mode) as config_file:
+        with open("config.ini", mode) as config_file:
             config_file.write(default_config)
         return True
-    
+
     except FileNotFoundError:
         return False
 
@@ -127,29 +135,29 @@ def read_config(file) -> BotInfo:
     # * Read config file
     config = configparser.ConfigParser()
     config.read(file)
-    
+
     try:
         config.read(file)
-    
+
     except Exception as error:
-        if create_config(mode='w'):
+        if create_config(mode="w"):
             config.read(file)
-        
+
         else:
             raise error
-    
-    config.base = config['base']
-    config.operation = config['operation']
+
+    config.base = config["base"]
+    config.operation = config["operation"]
     new_bot_info = BotInfo(
-            config.base.get('name', 'bot - iketan'),
-            config.base.getfloat('version', '0.1'),
-            config.base.get('description', 'an iKetan bot'),
-            config.base.get('owner', ''),
-            config.base.get('prefix', 'ketan.'),
-            config.base.get('admin_prefix', 'ketan#'),
-            config.operation.getboolean('cycle_status', False),
-            config.operation.getint('cycle_status_delay', 5000)
-            )
+        config.base.get("name", "bot - iketan"),
+        config.base.getfloat("version", "0.1"),
+        config.base.get("description", "an iKetan bot"),
+        config.base.get("owner", ""),
+        config.base.get("prefix", "ketan."),
+        config.base.get("admin_prefix", "ketan#"),
+        config.operation.getboolean("cycle_status", False),
+        config.operation.getint("cycle_status_delay", 5000),
+    )
     return new_bot_info
 
 
@@ -159,13 +167,13 @@ def get_token(tokenName: str) -> Union[str, None]:
     """
     try:
         return os.environ.get(tokenName)
-    
+
     except KeyError:
         # try:
         #     # with open(tokenName, 'r') as token_source:
         #     #     return token_source.read().strip()
         # except FileNotFoundError:
-        print(f'NO \'{tokenName}\' TOKEN FOUND')
+        print(f"NO '{tokenName}' TOKEN FOUND")
         return None
 
 
@@ -180,34 +188,26 @@ def time(get_date=True, get_time=True):
 # ?     for better output result (based on default terminal setting
 # ?     which may vary for each device)
 def pretty_print(text_list: list):
-    max_len = max(
-        [len(max(text_block, key=len)) for text_block in text_list]
-        ) + 2
+    max_len = max([len(max(text_block, key=len))
+                   for text_block in text_list]) + 2
     text_list_len = len(text_list)
-    
-    top_edge = corner_top_left \
-        + hor_double * max_len \
-        + corner_top_right \
-        + "\n"
-    main_divide = hor_double_divide_left \
-        + hor_double * max_len \
-        + hor_double_divide_right \
-        + "\n"
-    bottom_edge = corner_bottom_left \
-        + hor_double * max_len \
-        + corner_bottom_right
-    
+
+    top_edge = corner_top_left + hor_double * max_len + corner_top_right + "\n"
+    main_divide = (hor_double_divide_left + hor_double * max_len +
+                   hor_double_divide_right + "\n")
+    bottom_edge = corner_bottom_left + hor_double * max_len + corner_bottom_right
+
     result_text = top_edge
-    
+
     for i_block in range(text_list_len):
         for line in text_list[i_block]:
             right_spaces = " " * (max_len - len(line) - 1)
             result_text += ver_double + " " + line + right_spaces + ver_double
             result_text += "\n"
-    
+
         if i_block != text_list_len - 1:
             result_text += main_divide
-    
+
     result_text += bottom_edge
     print(result_text)
 
@@ -218,6 +218,6 @@ def pretty_print(text_list: list):
 
 this_machine = platform.system()
 this_python = platform.python_version()
-this_bot = read_config('config.ini')
+this_bot = read_config("config.ini")
 
 my_work_dir = os.path.join(tempfile.gettempdir(), this_bot.name)

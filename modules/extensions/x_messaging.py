@@ -1,22 +1,26 @@
 import random
+from typing import Optional, Union
+
 import discord
 from discord.ext import commands
-from typing import Optional, Union
 
 
 class Messaging(commands.Cog):
     """Messaging commands"""
+
     def __init__(self, client):
         self.client = client
         self.hi_msg = [line.strip() for line in open("assets/hi").readlines()]
 
     @commands.command()
     async def say(
-            self, ctx,
-            channel: Optional[discord.TextChannel] = None,
-            user: Optional[discord.Member] = None,
-            *, text: Optional[str] = None
-            ):
+        self,
+        ctx,
+        channel: Optional[discord.TextChannel] = None,
+        user: Optional[discord.Member] = None,
+        *,
+        text: Optional[str] = None,
+    ):
         """
         Make the bot say something
 
@@ -32,7 +36,7 @@ class Messaging(commands.Cog):
                 else:
                     await ctx.send(text)
             else:
-                await ctx.send('No message assigned')
+                await ctx.send("No message assigned")
 
     @commands.command()
     async def hi(self, ctx):
@@ -42,14 +46,12 @@ class Messaging(commands.Cog):
         ***Usage***: `[p]hi` where [p] is bot prefix
         ***Example***: `{0}hi`
         """
-        await ctx.send(f'Hi, {ctx.message.author.display_name}!')
+        await ctx.send(f"Hi, {ctx.message.author.display_name}!")
 
     @commands.command()
-    async def say(
-            self, ctx,
-            target: Optional[Union[discord.User, discord.Guild]],
-            *, message: str
-            ):
+    async def say(self, ctx, target: Optional[Union[discord.User,
+                                                    discord.Guild]], *,
+                  message: str):
         """
         Too shy to say something? I'll say it for you
 
@@ -61,7 +63,7 @@ class Messaging(commands.Cog):
         """
         if target:
             await target.send(message)
-    
+
         else:
             await ctx.send(message)
 
@@ -90,14 +92,13 @@ class Messaging(commands.Cog):
         async with ctx.typing():
             if target:
                 # location = ctx.message.
-                if isinstance(target, str) \
-                        and target.startswith("https://"):
+                if isinstance(target, str) and target.startswith("https://"):
                     target = target.split("/")[-1]
-            
+
                 # message = commands.MessageConverter.convert(ctx=ctx, argument=target)
                 # message.delete()
                 await ctx.message.delete()
-    
+
     # @commands.command()
     # async def up(self, ctx):
     #     """
