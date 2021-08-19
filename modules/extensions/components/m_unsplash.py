@@ -79,7 +79,7 @@ def find_image(keyword="", content_filter="high", _random=False):
         response = requests.get(link)
         content = json.loads(response.content)
         
-        if 200 != response.status_code or "errors" in content:
+        if response.status_code != 200 or "errors" in content:
             raise RuntimeError(f"Response Error: {response.status_code}")
         
         position = random.randint(1, 10) if content["total"] >= limit \
@@ -95,7 +95,7 @@ def find_image(keyword="", content_filter="high", _random=False):
         response = requests.get(link)
         pic = json.loads(response.content)
         
-        if 200 != response.status_code or "errors" in pic:
+        if response.status_code != 200 or "errors" in pic:
             raise RuntimeError(f"Response Error: {response.status_code}")
         
         desc = pic["description"] \
