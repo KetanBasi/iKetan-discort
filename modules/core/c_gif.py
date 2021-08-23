@@ -38,8 +38,7 @@ def getGif(term, limit: typing.Optional[int] = 20) -> str:
             break
         return json.loads(
             result.content)["results"][i]["media"][0]["gif"]["url"]
-    else:
-        return f"*GIF source currently unavailable*: {result.status_code}"
+    return f"*GIF source currently unavailable*: {result.status_code}"
 
 
 def test() -> str:

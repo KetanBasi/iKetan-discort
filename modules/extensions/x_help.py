@@ -65,32 +65,31 @@ class Help(commands.Cog):
                                     value="",
                                     inline=False)
                     break
-                else:
-                    # ? If user requested info about a specific command
-                    commandFound = False
-                    for command in self.client.get_cog(cog).get_commands():
-                        if (not command.hidden) and (command.name.lower()
-                                                     == input[0].lower()):
-                            command_help = command.help
-                            try:
-                                command_help = command_help.format(
-                                    prefix, adminPrefix)
-                            except AttributeError:
-                                pass
-                            embed = discord.Embed(
-                                title=f"{command.name} - Command",
-                                value=command.help,
-                                inline=False,
-                            )
-                            embed.add_field(
-                                name=f"{prefix}{command.name}",
-                                value=command_help,
-                                inline=False,
-                            )
-                            commandFound = True
-                            break
-                    if commandFound:
+                # ? If user requested info about a specific command
+                commandFound = False
+                for command in self.client.get_cog(cog).get_commands():
+                    if (not command.hidden) and (command.name.lower()
+                                                 == input[0].lower()):
+                        command_help = command.help
+                        try:
+                            command_help = command_help.format(
+                                prefix, adminPrefix)
+                        except AttributeError:
+                            pass
+                        embed = discord.Embed(
+                            title=f"{command.name} - Command",
+                            value=command.help,
+                            inline=False,
+                        )
+                        embed.add_field(
+                            name=f"{prefix}{command.name}",
+                            value=command_help,
+                            inline=False,
+                        )
+                        commandFound = True
                         break
+                if commandFound:
+                    break
             else:
                 # ? If user's request not found
                 embed = discord.Embed(

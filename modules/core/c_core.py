@@ -20,9 +20,6 @@ cycleStatus     = true
 CStatusDelay    = 5000
 """
 
-global botName, botVersion, botDescription, botOwner
-global prefix, adminPrefix, cycleStatus, CStatusDelay
-
 
 def is_owner(user) -> bool:
     owners = read_file("owner")
@@ -34,8 +31,7 @@ def read_file(file, raw=False) -> Union[TextIO, List[str], None]:
         with open(file, "r") as _file:
             if raw:
                 return _file
-            else:
-                return [i.strip() for i in _file.readlines()]
+            return [i.strip() for i in _file.readlines()]
     except FileNotFoundError:
         return None
 

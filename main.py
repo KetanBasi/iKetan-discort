@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands, tasks
 
 from modules.core import c_core, c_gif
+import sys
 
 # ? ==================
 # ? Notes
@@ -68,12 +69,6 @@ logCHandler.setFormatter(logFormat)
 # * ==================
 dctLogger.addHandler(logFHandler)
 dctLogger.addHandler(logCHandler)
-
-# ? ==================
-# ? Read Config
-# ? ==================
-
-global _base, _operation
 try:
     _base, _operation = c_core.readConfig("config.ini")
     dctLogger.info("Config loaded")
@@ -83,7 +78,7 @@ except (NameError, KeyError):
         _base, _operation = c_core.readConfig("config.ini")
     else:
         dctLogger.error("Cannot create config file")
-        exit(1)
+        sys.exit(1)
 finally:
     botName, botVersion, botDescription, botOwner, prefix, adminPrefix = _base
     cycleStatus, CStatusDelay = _operation
