@@ -1,22 +1,21 @@
 import json
 import typing
+
 import requests
 
 agify_api = "https://api.agify.io/?name="
 nationalize_api = "https://api.nationalize.io?name="
 
-
 # ? ==================
 # ? Data Class
 # ? ==================
 
+
 class Nation:
-    def __init__(
-            self, country_id, probability
-            ):
+    def __init__(self, country_id, probability):
         self.country_id = country_id
         self.probability = probability
-    
+
     def __str__(self):
         return f"{self.country_id}: {self.probability}"
 
@@ -24,6 +23,7 @@ class Nation:
 # ? ==================
 # ? Functions
 # ? ==================
+
 
 def get_age(name: str) -> int:
     result = requests.get(agify_api + name)
@@ -41,10 +41,9 @@ def get_nation(name: str) -> list:
     if result.status_code == 200 and "country" in content:
         # ? return list of Nation
         return [
-            Nation(
-                country_id=country["country_id"],
-                probability=country["probability"]
-                ) for country in content["country"]
-            ]
+            Nation(country_id=country["country_id"],
+                   probability=country["probability"])
+            for country in content["country"]
+        ]
 
     raise RuntimeError(result.status_code)

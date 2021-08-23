@@ -93,6 +93,7 @@ class Help(commands.Cog):
                             inline=False,
                         )
                         break
+
                     commandFound = False
                     for command in self.client.get_cog(cog).get_commands():
                         if (not command.hidden) and (command.name.lower()
