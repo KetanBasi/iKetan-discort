@@ -1,11 +1,11 @@
 import logging
 import os
+import sys
 
 import discord
 from discord.ext import commands, tasks
 
 from modules.core import c_core, c_gif
-import sys
 
 # ? ==================
 # ? Notes
