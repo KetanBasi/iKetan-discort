@@ -1,99 +1,82 @@
-import os
 import logging
+import os
+from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
 
-from modules.core import c_core, c_gif
+# ? Load this bot's components/modules
+from modules.core import c_core
+from modules.extensions.components import m_tenor
 
+# * Bot token name on Environment Variable
+bot_token = "iketan_token"
 
 # ? ==================
 # ? Notes
 # ? ==================
 
-#   To Invite this bot to your server
-#   https://discordapp.com/oauth2/author/authorize?client_id=<Bot Client ID>&scope=bot&permission=<permission>
-#   Use link above, change the <Bot Client ID> with
-#       your Bot Client ID on Discord Developers page
-#       and <permission> with your desired permission
-#       for your bot (discord dev portal for more).
-
 # TODO: Implement separated guild admin-only prefix
 # TODO: Implement guild admin-only commands
 # TODO: Implement database (MongoDB) integration
-# TODO: Release as alpha on cloud
+# TODO: Doc everything on separate docs and/or give it proper comments
 # TODO: Clean up & rearrange everything
-# TODO: Document everything on separate docs, or give it proper comments
-
+# TODO: Deploy, mdf
 
 # ? ==================
-# ? Def bot sys
+# ? Declare Variables
 # ? ==================
 
-def embed(description, title=None, colour=discord.Colour.orange(), *fields):
-    _message = discord.Embed(title=title,
-                             description=description,
-                             colour=colour
-                             )
-    for _item in fields:
-        _message.add_field(name=_item['title'],
-                           value=_item['description']
-                           )
-    return _message
+this_bot = c_core.this_bot
+my_work_dir = c_core.my_work_dir
 
+# ? ==================
+# ? Setup work dir
+# ? ==================
+
+try:
+    os.mkdir(my_work_dir)
+except FileExistsError:
+    pass
 
 # ? ==================
 # ? Setup Logging
 # ? ==================
 
-dctLogger = logging.getLogger('discord')
-dctLogger.setLevel(logging.DEBUG)
+dct_logger = logging.getLogger("discord")
+dct_logger.setLevel(logging.DEBUG)
+
+# for _dir in ['.', '/tmp']:
+#     if os.path.exists(f'{_dir}/iKetan-dct'):
+#         _dir += '/iKetan-dct'
+#     if os.access(_dir, os.W_OK):
+#         location = _dir
+#         break
 
 # * Logging: File Handler
 # * ==================
-logFHandler = logging.FileHandler(
-        filename='iKetan-dct.log',
-        encoding='utf-8',
-        mode='w'
-        )
-logFHandler.setLevel(logging.DEBUG)
+log_file = os.path.join(*[my_work_dir, this_bot.name + " " + c_core.time()])
+log_file_handler = logging.FileHandler(filename=f"{log_file}.log",
+                                       encoding="utf-8",
+                                       mode="w")
+log_file_handler.setLevel(logging.DEBUG)
 
 # * Logging: Console Handler
 # * ==================
-logCHandler = logging.StreamHandler()
-logCHandler.setLevel(logging.ERROR)
+log_console_handler = logging.StreamHandler()
+log_console_handler.setLevel(logging.ERROR)
 
 # * Logging: Formatter
 # * ==================
-logFormat = logging.Formatter(
-        '[%(asctime)s | %(levelname)s] %(name)s: %(message)s'
-        )
-logFHandler.setFormatter(logFormat)
-logCHandler.setFormatter(logFormat)
+log_format = logging.Formatter(
+    "[%(asctime)s | %(levelname)s] %(name)s: %(message)s")
+log_file_handler.setFormatter(log_format)
+log_console_handler.setFormatter(log_format)
 
 # * Logging: Add handlers
 # * ==================
-dctLogger.addHandler(logFHandler)
-dctLogger.addHandler(logCHandler)
-
-# ? ==================
-# ? Read Config
-# ? ==================
-
-global _base, _operation
-try:
-    _base, _operation = c_core.readConfig('config.ini')
-    dctLogger.info('Config loaded')
-except (NameError, KeyError):
-    dctLogger.error('Config file/key not found, attempting to create the file')
-    if c_core.createConfig(mode='w'):
-        _base, _operation = c_core.readConfig('config.ini')
-    else:
-        dctLogger.error('Cannot create config file')
-        exit(1)
-finally:
-    botName, botVersion, botDescription, botOwner, prefix, adminPrefix = _base
-    cycleStatus, CStatusDelay = _operation
+dct_logger.addHandler(log_file_handler)
+dct_logger.addHandler(log_console_handler)
 
 # ? ==================
 # ? Declare Other Variable
@@ -101,74 +84,124 @@ finally:
 
 intent = discord.Intents.all()
 # client = discord.Client()
-bot = commands.Bot(command_prefix=(prefix, adminPrefix),
-                   description=botDescription,
-                   help_command=None,
-                   intents=intent
-                   )
-counter = 0
-
+bot = commands.Bot(
+    command_prefix=(this_bot.prefix, this_bot.admin_prefix),
+    description=this_bot.description,
+    help_command=None,
+    intents=intent,
+)
+counter = -1
 
 # ? ==================
 # ? Main Bot : Load all available modules
 # ? ==================
 
-module_dir = ['administration', 'extensions']
+module_loaded = []
+module_dir = ["system", "extensions"]
+
 for subdir in module_dir:
-    for module in os.listdir(f'modules/{subdir}'):
-        if module.endswith('.py'):
-            bot.load_extension(f'modules.{subdir}.{module[:-3]}')
-
-
-# ? ==================
-# ? Main Bot : Functions
-# ? ==================
-
-async def _send(user: discord.User, msg):
-    await user.send(msg)
-
-
-async def _chp(status):
-    await bot.change_presence(
-            status=discord.Status.online,
-            activity=status
-            )
-
+    for item in os.listdir(f"modules/{subdir}"):
+        if item.endswith(
+                ".py") and item != "components" and not item.startswith("_"):
+            bot.load_extension(f"modules.{subdir}.{item[:-3]}")
+            print(f"loaded: {item}")
+            module_loaded.append(item)
 
 # ? ==================
 # ? Main Bot : On Event
 # ? ==================
 
+
+# * Event: When the bot was ready to use
+# * ==================
 @bot.event
 async def on_ready():
-    global botOwner
-    print("We have logged in as {0.user}".format(bot))
-    await bot.change_presence(status=discord.Status.online,
-                              activity=discord.Game(name='iKetan now alive')
-                              )
-    print(f'Bot id: {bot.user.id}')
-    dctLogger.info('Success Login')
-    botOwner = await bot.fetch_user(int(c_core.get_token('owner')))
-    _embed = discord.Embed(title=c_core.getRandom('greetings'),
-                           colour=discord.Colour.from_rgb(r=255,
-                                                          g=255,
-                                                          b=255
-                                                          )
-                           )
-    _embed.set_image(url=c_gif.test())
-    await botOwner.send(embed=_embed)
-    await cycle.start()
+    """
+    Do something when bot is ready
+    """
+    global bot_owner
 
+    # * Login report
+    # * ==================
+    # ? Each line length should be less than 52-78 characters long,
+    # ?     including spaces and always use space instead of tabs
+    # ?     for better output result (based on default terminal setting
+    # ?     which may vary for each device)
+    reports = [
+        [f"Logged in as : {bot.user}"],
+        [
+            f"Name         : {this_bot.name}",
+            f"Ver.         : {this_bot.version}",
+            f"ID           : {bot.user.id}",
+            f"Owner        : {this_bot.owner}",
+            f"Prefix       : {this_bot.prefix}",
+            f"Adm. Prefix  : {this_bot.admin_prefix}",
+        ],
+        [
+            f"Platform     : {c_core.this_machine}",
+            f"Python       : {c_core.this_python}",
+            f"Work Dir     : {c_core.my_work_dir}",
+        ],
+        ["Module loaded:"] + module_loaded,
+    ]
+
+    c_core.pretty_print(reports)
+
+    # * Bot Activity
+    # * ==================
+    # ? Either functions below gives similar result
+    # ! Discord bot can't have rich presence feature like app logo or etc.
+
+    # * This one use discord.Game() to make it looks like playing something
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=discord.Game(
+            name="my little ram on rem - Pre-Alpha discord bot",
+            start=datetime.now()),
+    )
+
+    # * This one use discord.Activity() and discord.ActivityType.listening
+    # *     as its type of activity, so it looks like listening to something
+    # await bot.change_presence(
+    #         status=discord.Status.online,
+    #         activity=discord.Activity(
+    #                 name="your words",
+    #                 type=discord.ActivityType.listening
+    #                 )
+    #         )
+
+    dct_logger.info("Success Login")
+    bot_owner = await bot.fetch_user(int(c_core.get_token("owner")))
+    _embed = discord.Embed(
+        title=c_core.get_random("greetings"),
+        description=c_core.time(),
+        colour=discord.Colour.from_rgb(r=255, g=255, b=255),
+    )
+    _embed.set_image(url=m_tenor.test())
+    await bot_owner.send(embed=_embed)
+    # await cycle.start()
+
+
+# * Event: When command error occur
+# * ==================
+# @bot.event
+# async def on_command_error(ctx, error):
+#     print(f"⇒ Error: {error}")
+#     await ctx.send(f"> Hold up, can't process: {str(error)}")
 
 # ? ==================
 # ? Main Bot : Loop tasks
 # ? ==================
 
+
 @tasks.loop(seconds=30)
 async def cycle():
+    """
+    Cycle function
+    """
     global counter
     counter += 1
-    _name = f'I\'m alive for {counter}0 secs'
+    _name = f"I'm awake for {counter}0 secs"
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Game(name=_name))
 
@@ -176,10 +209,11 @@ async def cycle():
 # ? ==================
 # ? Main Bot : Commands
 # ? ==================
-# You can put your "uncategorized" commands here.
 
+# * >>==> Put your "uncategorized" commands here. <<=<< *
 
 # ? ==================
 # ? Run the Bot
 # ? ==================
-bot.run(c_core.get_token('ketan_token'))
+
+bot.run(c_core.get_token(bot_token))

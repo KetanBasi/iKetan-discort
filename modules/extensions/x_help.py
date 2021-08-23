@@ -2,128 +2,159 @@
 import discord
 from discord.ext import commands
 
-from main import adminPrefix, botDescription, botName, botOwner, botVersion, prefix
-from modules.core import c_gif
+from modules.core.c_core import this_bot
+from modules.extensions.components import m_tenor
 
 helpColour = discord.Colour.blurple()
 
 
 class Help(commands.Cog):
-    """Show this help message"""
+    """
+    Show this help message
+    """
 
     def __init__(self, client):
         self.client = client
 
     @commands.command()
-    async def help(self, ctx, *input):
-        """Shows all available category and its commands"""
-        description = f"{botName} v{botVersion}" + \
-            f" by {botOwner}\n" + botDescription
+    async def help(self, ctx, *keyword):
+        """
+        Shows all available category and its commands
 
-        if not input:  # ? Means "if the 'input' variable has no member"
-            embed = discord.Embed(title="Command Categories", color=helpColour)
-            cog_desc = ""
-            for cog in self.client.cogs:
-                cog_desc += f" ► `{cog}` {self.client.cogs[cog].__doc__}\n"
-            cog_desc += f"\nUse `{prefix}input <category>` to gain more information"
+        ***Usage***:
+        `[p]help` where ___[p]___ is bot prefix,
+        `[p]help [category]`, or
+        `[p]help [command]`
 
-            embed.add_field(name="Categories", value=cog_desc, inline=False)
+        ***Example***:
+        `{0}help fun` or `{0}help gif`
+        """
+        async with ctx.typing():
+            description = (f"{this_bot.name} v{this_bot.version}" +
+                           f" by {this_bot.owner}\n" + this_bot.description)
 
-            # ? Get all uncategorized commands
-            uncategorized = ""
-            for command in self.client.walk_commands():
-                if not command.cog_name and not command.hidden:
-                    command_help = command.help
-                    try:
-                        command_help = command_help.format(prefix, adminPrefix)
-                    except AttributeError:
-                        pass
-                    uncategorized += f"\n ► `{command.name}` {command_help}"
-            if uncategorized:
-                embed.add_field(
-                    name="Uncategorized commands",
-                    value=uncategorized.format(prefix),
-                    inline=False,
-                )
-            embed.add_field(name="About", value=description, inline=False)
+            # ? If the 'keyword' variable has no value(s)
+            if not keyword:
+                cog_desc = ""
+                for cog in self.client.cogs:
+                    cog_doc = self.client.cogs[cog].__doc__
+                    cog_desc += f" ► `{cog}` {cog_doc.strip()}\n"
+                cog_desc += f"\nUse `{this_bot.prefix}keyword <category>` to gain more information"
+                embed = discord.Embed(title="Command Categories",
+                                      color=helpColour)
+                embed.add_field(name="Categories",
+                                value=cog_desc,
+                                inline=False)
 
-        elif len(input) == 1:
+                # ? Get all uncategorized commands
+                uncategorized = ""
+                for command in self.client.walk_commands():
+                    if not command.cog_name and not command.hidden:
+                        command_help = command.help
+                        try:
+                            command_help = command_help.format(
+                                this_bot.prefix, this_bot.admin_prefix)
 
-            for cog in self.client.cogs:
-                # ? If user requested info about a category / cog
-                if cog.lower() == input[0].lower():
-                    embed = discord.Embed(
-                        title=f"{cog} - Commands",
-                        description=self.client.cogs[cog].__doc__,
-                        colour=helpColour,
-                    )
-                    availableCommands = ""
-                    for command in self.client.get_cog(cog).get_commands():
-                        if not command.hidden:
-                            availableCommands += f"\n ► {command.name}"
-                    # embed.add_field(name=f'\n ► {command.name}',
-                    #                 value='',
-                    #                 inline=False
-                    #                 )
+                        except AttributeError:
+                            pass
+
+                        finally:
+                            uncategorized += f"\n ► `{command.name}` {command_help}"
+
+                if uncategorized:
                     embed.add_field(
-                        name=f"Available Commands:",
-                        value=availableCommands,
+                        name="Uncategorized commands",
+                        value=uncategorized.format(this_bot.prefix),
                         inline=False,
                     )
-                    break
-                else:
-                    # ? If user requested info about a specific command
+
+                # ? Add bot description
+                embed.add_field(name="About", value=description, inline=False)
+
+            elif len(keyword) == 1:
+
+                for cog in self.client.cogs:
+
+                    # ? If user requested info about a category / cog
+                    if cog.lower() == keyword[0].lower():
+                        availableCommands = ""
+                        for command in self.client.get_cog(cog).get_commands():
+                            if not command.hidden:
+                                availableCommands += f"\n ► {command.name}"
+
+                        embed = discord.Embed(
+                            title=f"Category: {cog}",
+                            description=self.client.cogs[cog].__doc__,
+                            colour=helpColour,
+                        )
+                        embed.add_field(
+                            name="Available Commands:",
+                            value=availableCommands,
+                            inline=False,
+                        )
+                        break
+
                     commandFound = False
                     for command in self.client.get_cog(cog).get_commands():
                         if (not command.hidden) and (command.name.lower()
-                                                     == input[0].lower()):
+                                                     == keyword[0].lower()):
                             command_help = command.help
                             try:
                                 command_help = command_help.format(
-                                    prefix, adminPrefix)
+                                    this_bot.prefix, this_bot.admin_prefix)
+
                             except AttributeError:
                                 pass
+
+                            commandFound = True
                             embed = discord.Embed(
-                                title=f"{command.name} - Command",
+                                title=f"Command: {command.name}",
                                 value=command.help,
                                 inline=False,
                             )
                             embed.add_field(
-                                name=f"{prefix}{command.name}",
+                                name=f"{this_bot.prefix}{command.name}",
                                 value=command_help,
                                 inline=False,
                             )
-                            commandFound = True
                             break
+
                     if commandFound:
                         break
-            else:
-                # ? If user's request not found
-                embed = discord.Embed(
-                    title="Unknown category / command",
-                    description="Please try another available" +
-                    " command or report it to bot's" + " owner",
-                    colour=helpColour,
-                )
-        elif len(input) > 1:
-            # ? If user gives more input than expected
-            description = ("Too much input. Currently, I could only give you" +
-                           " information about one command at a time.")
-            embed = discord.Embed(title="Too much input",
-                                  description=description,
-                                  colour=helpColour)
-            embed.set_image(url=c_gif.getGif("Confused"))
 
-        else:
+                # ? If user's request not found
+                else:
+                    embed = discord.Embed(
+                        title="Unknown category / command",
+                        description="Please try another available" +
+                        " command or report it to bot's" + " owner",
+                        colour=helpColour,
+                    )
+
+            # ? If user gives more keyword than expected
+            elif len(keyword) > 1:
+                description = (
+                    "Too much keyword. Currently, I could only give you" +
+                    " information about one command at a time.")
+                embed = discord.Embed(title="Too much keyword",
+                                      description=description,
+                                      colour=helpColour)
+                embed.set_image(url=m_tenor.get_gif("Confused"))
+
             # ? If something we don't know happened
-            embed = discord.Embed(
-                title="It's a magical place",
-                description="I don't know how you got here.\n" +
-                "Would you mind to report this to" + " my creator, please?",
-            )
+            else:
+                embed = discord.Embed(
+                    title="It's a magical place",
+                    description="I don't know how you got here.\n" +
+                    "Would you mind to report this to" +
+                    " my creator, please?",
+                )
 
         await ctx.send(embed=embed)
 
 
 def setup(bot):
+    """
+    add cog to bot
+    """
     bot.add_cog(Help(bot))
