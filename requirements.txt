@@ -4,3 +4,5 @@ fuzzywuzzy~=0.18.0
 requests
 setuptools
 wheel
+kbbi
+python-dotenv

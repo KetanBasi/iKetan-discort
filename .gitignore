@@ -1,4 +1,5 @@
 __pycache__/
+.pytest_cache/
 .iketan_env/
 .vscode/
 .idea/
@@ -6,5 +7,10 @@ __pycache__/
 temp/
 *.log
 *.pyc
-owner
-/.env
+*.ign.py
+.env
+.detaignore
+Dockerfile
+modules/extensions/_x_climates.ign.py
+modules/extensions/components/_m_pixiv.ign.py
+modules/extensions/components/_m_poke.ign.py
