@@ -27,7 +27,7 @@ class System(commands.Cog):
         ***Usage***: `[bo]shutdown`
         ***Example***: `{1}shutdown`
         """
-        print(f"⇒ shutdown invoked")
+        print("⇒ shutdown invoked")
         await ctx.send(f"Shutting down {this_bot.name}")
         await self.client.close()
 
