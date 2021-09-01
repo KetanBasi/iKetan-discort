@@ -1,11 +1,11 @@
 import random
 import statistics
-import typing
+from typing import Optional, Union
 
 import discord
 from discord.ext import commands
 
-from modules.extensions.components import m_age_nation, m_bored, m_tenor
+from modules.extensions.components import m_age_nation, m_bored, m_code_stats, m_tenor
 
 
 class Fun(commands.Cog):
@@ -38,13 +38,13 @@ class Fun(commands.Cog):
                 embed = discord.Embed(colour=discord.Colour.green())
             embed.set_image(url=m_tenor.get_gif(keyword))
             embed.set_footer(
-                text=f"Requested by {ctx.message.author.display_name}",
-                icon_url=ctx.message.author.avatar_url_as(size=128),
-            )
-            await ctx.send(embed=embed)
+                text=f'Requested by {ctx.message.author.display_name}',
+                icon_url=ctx.message.author.avatar_url_as(size=128)
+                )
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["hugs"], description="Hug someone")
-    async def hug(self, ctx, user: typing.Optional[discord.User] = None):
+    async def hug(self, ctx, user: Optional[discord.User] = None):
         """
         Hugs someone
 
@@ -62,13 +62,13 @@ class Fun(commands.Cog):
                                     colour=discord.Colour.green())
             message.set_image(url=m_tenor.get_gif("hugs"))
             message.set_footer(
-                text=f"Requested by {ctx.message.author.display_name}",
-                icon_url=ctx.message.author.avatar_url_as(size=128),
-            )
-            await ctx.send(embed=message)
+                text=f'Requested by {ctx.message.author.display_name}',
+                icon_url=ctx.message.author.avatar_url_as(size=128)
+                )
+        await ctx.send(embed=message)
 
     @commands.command(aliases=["slaps"], description="Slap someone")
-    async def slap(self, ctx, user: typing.Optional[discord.User] = None):
+    async def slap(self, ctx, user: Optional[discord.User] = None):
         """
         Slaps someone
 
@@ -86,13 +86,13 @@ class Fun(commands.Cog):
                                     colour=discord.Colour.green())
             message.set_image(url=m_tenor.get_gif("slaps"))
             message.set_footer(
-                text=f"Requested by {ctx.message.author.display_name}",
-                icon_url=ctx.message.author.avatar_url_as(size=128),
-            )
-            await ctx.send(embed=message)
+                text=f'Requested by {ctx.message.author.display_name}',
+                icon_url=ctx.message.author.avatar_url_as(size=128)
+                )
+        await ctx.send(embed=message)
 
     @commands.command(aliases=["flipcoin"], description="Flip a coin")
-    async def coin(self, ctx, count: typing.Optional[int] = 1):
+    async def coin(self, ctx, count: Optional[int] = 1):
         """
         Flip a coin
 
@@ -117,21 +117,24 @@ class Fun(commands.Cog):
                     count = f"> Head: {head_count}\n> Tail: {tail_count}"
                     embed.add_field(name="Count:", value=count, inline=False)
                 embed.set_footer(
-                    text=f"Flipped by {ctx.message.author.display_name}",
-                    icon_url=ctx.message.author.avatar_url_as(size=128),
-                )
-                await ctx.send(embed=embed)
-
+                    text=f'Flipped by {ctx.message.author.display_name}',
+                    icon_url=ctx.message.author.avatar_url_as(size=128)
+                    )
+            
             else:
-                await ctx.send("Invalid argument, please insert"
-                               "positive value more than **0**")
+                embed = discord.Embed(
+                    title="Invalid argument",
+                    description="Please insert positive value more than **0**",
+                    colour=discord.Colour.red()
+                    )
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["rolldice", "diceroll"],
                       description="Roll a dice")
     async def dice(self,
                    ctx,
-                   rolls: typing.Optional[int] = 1,
-                   diceSides: typing.Optional[int] = 6):
+                   rolls: Optional[int] = 1,
+                   diceSides: Optional[int] = 6):
         """
         Roll a dice
 
@@ -147,15 +150,13 @@ class Fun(commands.Cog):
             if diceSides >= 2:
                 if 1 <= rolls <= 100:
                     results = [
-                        random.randint(1, diceSides) for _ in range(rolls)
-                    ]
+                        random.randint(1, diceSides) for _ in range(rolls)]
                     embed = discord.Embed(title="Dice Rolls",
                                           color=discord.Colour.orange())
                     embed.add_field(
                         name="Result:",
                         value=", ".join([str(num) for num in results]),
-                        inline=False,
-                    )
+                        inline=False)
 
                     if rolls > 1:
                         max_val = max(results)
@@ -164,18 +165,14 @@ class Fun(commands.Cog):
                         embed.add_field(
                             name="Statistics:",
                             value=stats,
-                            inline=False,
-                        )
-
-                    embed.set_footer(
-                        text=f"Dice rolls by {ctx.message.author.display_name}",
-                        icon_url=ctx.message.author.avatar_url_as(size=128),
-                    )
-                    await ctx.send(embed=embed)
-
+                            inline=False)
+                
                 else:
-                    await ctx.send("I'm confused, too many rolls")
-
+                    embed = discord.Embed(
+                        title="Invalid value",
+                        description="Too many rolls",
+                        colour=discord.Colour.red())
+            
             else:
                 if diceSides == 1:
                     message = "Is this a joke? I don't have any mobius strip"
@@ -184,14 +181,19 @@ class Fun(commands.Cog):
                     message = "Hmm, use a coin instead"
 
                 else:
-                    message = "Wait, what?"
-
-                await ctx.send(message)
-
+                    message = 'Wait, what?'
+                
+                embed = discord.Embed(
+                    title="Invalid value",
+                    description=message,
+                    colour=discord.Colour.red()
+                    )
+                
+        await ctx.send(embed=embed)
+    
     @commands.command()
     async def bored(self, ctx,
-                    participants: typing.Optional[typing.Union[int,
-                                                               str]], *, _):
+                    participants: Optional[Union[int, str]], *, _):
         """
         Feel bored? Find new activity
 
@@ -204,16 +206,14 @@ class Fun(commands.Cog):
             embed = discord.Embed(
                 title=activity.activity,
                 description=f"Participants: {activity.participants}\n"
-                f"Type: {activity.type}" + link,
-            )
+                f"Type: {activity.type}" + link)
         await ctx.send(embed=embed)
 
     @commands.command()
     async def agify(self,
                     ctx,
                     *,
-                    name: typing.Optional[typing.Union[str,
-                                                       discord.User]] = None):
+                    name: Optional[str] = None):
         """
         I'll try to predict your age from your name
 
@@ -229,8 +229,6 @@ class Fun(commands.Cog):
         async with ctx.typing():
             if not name:
                 name = ctx.author.display_name
-            elif isinstance(name, discord.User):
-                name = name.display_name
             name = name.replace(" ", "")
             result = m_age_nation.get_age(name=name)
             embed = discord.Embed(title=f'Age prediction for "{name}"',
@@ -242,7 +240,7 @@ class Fun(commands.Cog):
             self,
             ctx,
             *,
-            name: typing.Optional[typing.Union[str, discord.User]] = None):
+            name: Optional[str]):
         """
         I'll try to predict your nationality from your name
 
@@ -258,20 +256,48 @@ class Fun(commands.Cog):
         async with ctx.typing():
             if not name:
                 name = ctx.author.display_name
-            elif isinstance(name, discord.User):
-                name = name.display_name
             name = name.replace(" ", "")
             result = m_age_nation.get_nation(name=name)
             embed = discord.Embed(
                 title=f'Nationality prediction for "{name}"',
-                description="Prediction Result:",
-            )
+                description="Prediction Result:")
+            
             if len(result) > 0:
                 for nation in result:
                     embed.add_field(name=nation.country_id,
                                     value=nation.probability)
+            
             else:
                 embed.add_field(name="Can't predict", value="Try other name")
+        await ctx.send(embed=embed)
+    
+    @commands.command(aliases=["cs"])
+    async def codestats(self, ctx, users: Optional[str]):
+        """
+        Get Code::Stats info
+        
+        ***Usage***: `[p]codestats [username]`
+        ***Example***: `{0}codestats` or `{0}codestats KetanBasi`
+        """
+        async with ctx.typing():
+            if not users:
+                users = ctx.message.author.display_name
+            stats = m_code_stats.get_user_stats(users)
+            desc = f"New XP: {stats.new_xp}\n"\
+                   f"Total XP: {stats.total_xp}\n"\
+                   f"Last Code: {stats.last_code}\n"\
+                   f"Highest: {stats.max_stat[0]} ({stats.max_stat[1]})"
+            links = f"[View User's Page]({stats.user_page})\n"\
+                    f"[Code::Stats]({m_code_stats.code_stats})"
+            embed = discord.Embed(
+                title=f"{stats.username}'s stats",
+                description=desc,
+                colour=discord.Colour.from_rgb(r=255, g=255, b=255)
+                )
+            embed.add_field(name="Links", value=links, inline=False)
+            for lang in stats.languages:
+                embed.add_field(name=lang,
+                                value=f"***{stats.languages[lang]}*** xp")
         await ctx.send(embed=embed)
 
 

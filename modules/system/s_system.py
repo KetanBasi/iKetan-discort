@@ -1,10 +1,23 @@
-import ast
 import typing
 
 import discord
 from discord.ext import commands
 
 from modules.core.c_core import this_bot
+
+
+def embed_file_imfo(attachments):
+    embed = discord.Embed(
+        title="Get file",
+        description=f"Len: {len(attachments)}",
+        colour=discord.Colour.from_rgb(r=255, g=255, b=255)
+        )
+    for item in attachments:
+        name = item.filename
+        size = item.size
+        url = item.url
+        embed.add_field(name=name, value=f"File: [{name}]({url})\nSize: {size}")
+    return embed
 
 
 class System(commands.Cog):
@@ -14,6 +27,8 @@ class System(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+    
+    @commands.when_mentioned_or
 
     # ? ==================
     # ? Commands
@@ -86,14 +101,93 @@ class System(commands.Cog):
         ***Usage***: `[bo]get_ctx [something]`
         ***Example***: `{1}get_ctx [something]`
         """
-        await ctx.send(f"""Msg: {ctx.message}\n
-        Author: {ctx.message.author}
-        Bot: {ctx.bot}
-        Args: {ctx.args}
-        Kwargs: {ctx.kwargs}
-        Prefix: {ctx.prefix}
-        Command: {ctx.command}
-""")
+        message = f"Msg: {ctx.message}\n\n"\
+                  f"Author: {ctx.message.author}\n"\
+                  f"Bot: {ctx.bot}\n"\
+                  f"Args: {ctx.args}\n"\
+                  f"Kwargs: {ctx.kwargs}\n"\
+                  f"Prefix: {ctx.prefix}\n"\
+                  f"Command: {ctx.command}\n"
+        
+        if ctx.message.reference:
+            message += f"Reference: {ctx.message.reference.message_id}: "\
+                       f"{ctx.message.reference}\n"
+        
+        if ctx.message.attachments:
+            message += f"Attachments: {len(ctx.message.attachments)}: "\
+                       f"{ctx.message.attachments}\n"
+        
+        await ctx.send(message)
+    
+    @commands.command()
+    @commands.is_owner()
+    async def get_file(self, ctx):
+        """
+        Get file link (reply / direct)
+        
+        ***Usage***: `[bo]get_file`
+        ***Example***: `{1}get_file`
+        """
+        async with ctx.typing():
+            attachments = ctx.message.attachments
+            reference = ctx.message.reference
+            
+            if not attachments or not reference:
+                embed = discord.Embed(
+                    title="No file attached",
+                    description="No attachments detected",
+                    colour=discord.Colour.from_rgb(r=255, g=255, b=255)
+                    )
+            
+            elif attachments:
+                embed = embed_file_imfo(attachments)
+            
+            elif reference:
+                message = await ctx.channel.fetch_message(reference.message_id)
+                if message.attachments:
+                    embed = embed_file_imfo(message.attachments)
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    @commands.is_owner()
+    async def say_this(self, ctx):
+        """
+        ***Usage***: `[bo]say_this`
+        ***Example***: `{1}say_this`
+        """
+        reference = ctx.message.reference
+        if reference:
+            async with ctx.typing():
+                message = await ctx.channel.fetch_message(reference.message_id)
+            await ctx.send(type(message.content))
+            await ctx.send(message.type)
+            # if isinstance(message.content, str):
+            await ctx.send(message.content)
+        
+        else:
+            await ctx.send("Can't proceed, no message")
+
+    @commands.command()
+    @commands.is_owner()
+    async def read_embed(self, ctx):
+        """
+        read embed message
+        """
+        if ctx.message.reference:
+            async with ctx.typing():
+                message = await ctx.channel.fetch_message(
+                    ctx.message.reference.message_id)
+                embeds = message.embeds
+                print(len(embeds))
+                for item in embeds:
+                    print(type(item))
+                    print(item.to_dict())
+                content = [str(item.to_dict()) for item in embeds]
+            for item in content:
+                await ctx.send(item)
+    
+        else:
+            await ctx.send("Error: No reference given. Please reply to a msg")
 
 
 def setup(bot):
