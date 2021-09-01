@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 _anonfile_api = "https://api.anonfiles.com/upload"
@@ -13,20 +14,20 @@ class AnonFiles:
         self.file_name: str = ""
         self.file_size: int = -1
         self.msg: str = ""
-    
+
     def _wrap(self, response):
         data = json.loads(response.content)
         self.success = data["status"]
-        
+
         if 200 <= response.status_code < 300:
             self.link = data["data"]["file"]["url"]["short"]
             self.file_id = data["data"]["file"]["metadata"]["id"]
             self.file_name = data["data"]["file"]["metadata"]["name"]
             self.file_size = data["data"]["file"]["metadata"]["size"]["bytes"]
-        
+
         elif response.status_code == 404:
             self.msg = data["error"]["message"]
-        
+
         else:
             raise RuntimeError(f"{response.status_code}: {response.content}")
 

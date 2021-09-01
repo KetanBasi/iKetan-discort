@@ -2,14 +2,13 @@ import configparser
 import os
 import platform
 import random
-import requests
 import tempfile
 from datetime import datetime
 from typing import List, Union
-
 from typing.io import TextIO
-from dotenv import load_dotenv
 
+import requests
+from dotenv import load_dotenv
 
 # ? ==================
 # ? Notes
@@ -52,9 +51,19 @@ cycle_status_delay  = 5000
 
 class BotInfo:
     def __init__(
-            self, name, version, description, owner, prefix, admin_prefix,
-            cycle_status, cycle_status_delay, logfile_limit_by,
-            logfile_limit_count, logfile_format):
+        self,
+        name,
+        version,
+        description,
+        owner,
+        prefix,
+        admin_prefix,
+        cycle_status,
+        cycle_status_delay,
+        logfile_limit_by,
+        logfile_limit_count,
+        logfile_format,
+    ):
         self.name = name
         self.version = version
         self.description = description
@@ -70,10 +79,10 @@ class BotInfo:
 
     def __str__(self):
         return self.name
-    
+
     def _check(self):
-        if self.logfile_limit_by not in ("count", "day",
-                                         "week", "month", "year"):
+        if self.logfile_limit_by not in ("count", "day", "week", "month",
+                                         "year"):
             raise RuntimeError("Invalid logfile_limit_by on config file")
 
 
@@ -91,7 +100,7 @@ def get_token(token_name: str) -> Union[str, None]:
     if ".env" in os.listdir(main_location):
         # ? Load .env file
         load_dotenv(os.path.join(main_location, ".env"))
-    
+
     try:
         return os.environ[token_name]
 
@@ -173,7 +182,8 @@ def read_config(file) -> BotInfo:
         config.operation.getint("cycle_status_delay", 5000),
         config.operation.get("logfile_limit_by", "count"),
         config.operation.getint("logfile_limit_count", 100),
-        config.operation.get("logfile_format", "$Y-$m-$d $H.$M.$S"))
+        config.operation.get("logfile_format", "$Y-$m-$d $H.$M.$S"),
+    )
     return new_bot_info
 
 
@@ -191,9 +201,8 @@ def pretty_print(text_list: list):
                    for text_block in text_list]) + 2
     text_list_len = len(text_list)
     top_edge = corner_top_left + hor_double * max_len + corner_top_right + "\n"
-    main_divide = (
-        hor_double_divide_left + hor_double * max_len
-        + hor_double_divide_right + "\n")
+    main_divide = (hor_double_divide_left + hor_double * max_len +
+                   hor_double_divide_right + "\n")
     bottom_edge = corner_bottom_left + hor_double * max_len + corner_bottom_right
     result_text = top_edge
     for i_block in range(text_list_len):
@@ -234,7 +243,7 @@ def get_file(ctx, file):
     guild = str(ctx.message.guild.id)
     channel = str(ctx.message.channel.id)
     file_path = os.path.join(my_work_dir, guild, channel, file)
-    
+
     if os.path.isfile(file_path):
         with open(file_path, "rb") as target:
             return target.read
@@ -247,43 +256,31 @@ def log_limit_exceed():
         if item.startswith(this_bot.name) and item.endswith(".log"):
             if this_bot.logfile_limit_by == "count":
                 counter += 1
-            
+
             else:
                 item_date = datetime.strptime(
-                    item[:-4],
-                    f"{this_bot.name} {this_bot.logfile_format}")
+                    item[:-4], f"{this_bot.name} {this_bot.logfile_format}")
 
-                if (
-                        (last_date is None)
-                        or (
-                            this_bot.logfile_limit_by == "day"
-                            and item_date.day > last_date.day)
-                        or (
-                            this_bot.logfile_limit_by == "month"
+                if ((last_date is None) or (this_bot.logfile_limit_by == "day"
+                                            and item_date.day > last_date.day)
+                        or (this_bot.logfile_limit_by == "month"
                             and item_date.month > last_date.month)
-                        or (
-                            this_bot.logfile_limit_by == "year"
-                            and item_date.year > last_date.year)
-                        ):
+                        or (this_bot.logfile_limit_by == "year"
+                            and item_date.year > last_date.year)):
                     last_date = item_date
 
-                elif (
-                        (
-                            this_bot.logfile_limit_by == "day"
-                            and item_date.day <= last_date.day)
-                        or (
-                            this_bot.logfile_limit_by == "month"
-                            and item_date.month <= last_date.month)
-                        or (
-                            this_bot.logfile_limit_by == "year"
-                            and item_date.year <= last_date.year)
-                        ):
+                elif ((this_bot.logfile_limit_by == "day"
+                       and item_date.day <= last_date.day)
+                      or (this_bot.logfile_limit_by == "month"
+                          and item_date.month <= last_date.month)
+                      or (this_bot.logfile_limit_by == "year"
+                          and item_date.year <= last_date.year)):
                     continue
-                
+
                 else:
                     raise RuntimeError(
                         f"Unexpected error, limit by {this_bot.logfile_limit_by}"
-                        )
+                    )
 
                 counter += 1
 
@@ -298,10 +295,8 @@ def clean_log(count=1):
         for item in os.listdir(my_work_dir):
             if count == 0:
                 break
-            
-            elif (
-                    item.startswith(this_bot.name)
-                    and item.endswith(".log")):
+
+            elif item.startswith(this_bot.name) and item.endswith(".log"):
                 os.remove(item)
                 count -= 1
 
@@ -309,7 +304,6 @@ def clean_log(count=1):
 # ? ==================
 # ? Addl Variables
 # ? ==================
-
 
 this_machine = platform.system()
 this_python = platform.python_version()
