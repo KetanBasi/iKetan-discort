@@ -5,12 +5,10 @@ __pycache__/
 .idea/
 .old/
 temp/
+*.bat
 *.log
 *.pyc
 *.ign.py
 .env
 .detaignore
 Dockerfile
-modules/extensions/_x_climates.ign.py
-modules/extensions/components/_m_pixiv.ign.py
-modules/extensions/components/_m_poke.ign.py

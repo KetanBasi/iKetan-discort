@@ -34,10 +34,7 @@ my_work_dir = c_core.my_work_dir
 # ? Setup work dir
 # ? ==================
 
-try:
-    os.mkdir(my_work_dir)
-except FileExistsError:
-    pass
+os.makedirs(my_work_dir, exist_ok=True)
 
 # ? ==================
 # ? Setup Logging
@@ -46,19 +43,13 @@ except FileExistsError:
 dct_logger = logging.getLogger("discord")
 dct_logger.setLevel(logging.DEBUG)
 
-# for _dir in ['.', '/tmp']:
-#     if os.path.exists(f'{_dir}/iKetan-dct'):
-#         _dir += '/iKetan-dct'
-#     if os.access(_dir, os.W_OK):
-#         location = _dir
-#         break
-
 # * Logging: File Handler
 # * ==================
-log_file = os.path.join(*[my_work_dir, this_bot.name + " " + c_core.time()])
-log_file_handler = logging.FileHandler(filename=f"{log_file}.log",
-                                       encoding="utf-8",
-                                       mode="w")
+log_file = os.path.join(*[my_work_dir, f"{this_bot.name} {c_core.time()}.log"])
+log_file_handler = logging.FileHandler(
+    filename=log_file,
+    encoding="utf-8",
+    mode="w")
 log_file_handler.setLevel(logging.DEBUG)
 
 # * Logging: Console Handler
@@ -84,13 +75,19 @@ dct_logger.addHandler(log_console_handler)
 
 intent = discord.Intents.all()
 # client = discord.Client()
-bot = commands.Bot(
-    command_prefix=(this_bot.prefix, this_bot.admin_prefix),
+# bot = commands.Bot(
+#     command_prefix=commands.when_mentioned_or(
+#         this_bot.prefix, this_bot.admin_prefix),
+#     description=this_bot.description,
+#     help_command=None,
+#     intents=intent)
+bot = commands.AutoShardedBot(
+    command_prefix=commands.when_mentioned_or(
+        this_bot.prefix, this_bot.admin_prefix),
     description=this_bot.description,
     help_command=None,
     intents=intent,
-)
-counter = -1
+    shard_count=10)
 
 # ? ==================
 # ? Main Bot : Load all available modules
@@ -104,7 +101,6 @@ for subdir in module_dir:
         if item.endswith(
                 ".py") and item != "components" and not item.startswith("_"):
             bot.load_extension(f"modules.{subdir}.{item[:-3]}")
-            print(f"loaded: {item}")
             module_loaded.append(item)
 
 # ? ==================
@@ -119,7 +115,6 @@ async def on_ready():
     """
     Do something when bot is ready
     """
-    global bot_owner
 
     # * Login report
     # * ==================
@@ -135,16 +130,12 @@ async def on_ready():
             f"ID           : {bot.user.id}",
             f"Owner        : {this_bot.owner}",
             f"Prefix       : {this_bot.prefix}",
-            f"Adm. Prefix  : {this_bot.admin_prefix}",
-        ],
+            f"Adm. Prefix  : {this_bot.admin_prefix}"],
         [
             f"Platform     : {c_core.this_machine}",
             f"Python       : {c_core.this_python}",
-            f"Work Dir     : {c_core.my_work_dir}",
-        ],
-        ["Module loaded:"] + module_loaded,
-    ]
-
+            f"Work Dir     : {c_core.my_work_dir}"],
+        ["Module loaded:"] + module_loaded]
     c_core.pretty_print(reports)
 
     # * Bot Activity
@@ -157,8 +148,7 @@ async def on_ready():
         status=discord.Status.online,
         activity=discord.Game(
             name="my little ram on rem - Pre-Alpha discord bot",
-            start=datetime.now()),
-    )
+            start=datetime.now()))
 
     # * This one use discord.Activity() and discord.ActivityType.listening
     # *     as its type of activity, so it looks like listening to something
@@ -175,8 +165,7 @@ async def on_ready():
     _embed = discord.Embed(
         title=c_core.get_random("greetings"),
         description=c_core.time(),
-        colour=discord.Colour.from_rgb(r=255, g=255, b=255),
-    )
+        colour=discord.Colour.from_rgb(r=255, g=255, b=255))
     _embed.set_image(url=m_tenor.test())
     await bot_owner.send(embed=_embed)
     # await cycle.start()
@@ -184,24 +173,37 @@ async def on_ready():
 
 # * Event: When command error occur
 # * ==================
-# @bot.event
-# async def on_command_error(ctx, error):
-#     print(f"⇒ Error: {error}")
-#     await ctx.send(f"> Hold up, can't process: {str(error)}")
+@bot.event
+async def on_command_error(ctx, error):
+    print(f"⇒ Error: {error}")
+    print(type(error))
+    await ctx.send(f"> Hold up, can't process: {str(error)}")
+
+
+@bot.event
+async def on_message(message):
+    # print(message)
+    # print(message.message)
+    # print()
+    if bot.user.mentioned_in(message):
+        await message.channel.send(f"Need help? Type `{this_bot.prefix}help`")
+        return
+    await bot.process_commands(message)
+
 
 # ? ==================
 # ? Main Bot : Loop tasks
 # ? ==================
 
 
-@tasks.loop(seconds=30)
+@tasks.loop(seconds=10)
 async def cycle():
     """
     Cycle function
     """
-    global counter
-    counter += 1
-    _name = f"I'm awake for {counter}0 secs"
+    counter = 1
+    _name = f"I'm awake for {counter} secs"
+    counter += 10
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Game(name=_name))
 

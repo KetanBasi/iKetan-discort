@@ -5,12 +5,12 @@ from discord.ext import commands
 from modules.core.c_core import this_bot
 from modules.extensions.components import m_tenor
 
-helpColour = discord.Colour.blurple()
+help_colour = discord.Colour.blurple()
 
 
 class Help(commands.Cog):
     """
-    Show this help message
+    Help commands
     """
 
     def __init__(self, client):
@@ -38,10 +38,14 @@ class Help(commands.Cog):
                 cog_desc = ""
                 for cog in self.client.cogs:
                     cog_doc = self.client.cogs[cog].__doc__
-                    cog_desc += f" ► `{cog}` {cog_doc.strip()}\n"
+                    try:
+                        cog_doc = cog_doc.strip()
+                    except AttributeError:
+                        pass
+                    cog_desc += f" ► `{cog}` {cog_doc}\n"
                 cog_desc += f"\nUse `{this_bot.prefix}keyword <category>` to gain more information"
                 embed = discord.Embed(title="Command Categories",
-                                      color=helpColour)
+                                      color=help_colour)
                 embed.add_field(name="Categories",
                                 value=cog_desc,
                                 inline=False)
@@ -65,8 +69,7 @@ class Help(commands.Cog):
                     embed.add_field(
                         name="Uncategorized commands",
                         value=uncategorized.format(this_bot.prefix),
-                        inline=False,
-                    )
+                        inline=False)
 
                 # ? Add bot description
                 embed.add_field(name="About", value=description, inline=False)
@@ -77,24 +80,22 @@ class Help(commands.Cog):
 
                     # ? If user requested info about a category / cog
                     if cog.lower() == keyword[0].lower():
-                        availableCommands = ""
+                        available_commands = ""
                         for command in self.client.get_cog(cog).get_commands():
                             if not command.hidden:
-                                availableCommands += f"\n ► {command.name}"
+                                available_commands += f"\n ► {command.name}"
 
                         embed = discord.Embed(
                             title=f"Category: {cog}",
                             description=self.client.cogs[cog].__doc__,
-                            colour=helpColour,
-                        )
+                            colour=help_colour)
                         embed.add_field(
                             name="Available Commands:",
-                            value=availableCommands,
-                            inline=False,
-                        )
+                            value=available_commands,
+                            inline=False)
                         break
 
-                    commandFound = False
+                    command_found = False
                     for command in self.client.get_cog(cog).get_commands():
                         if (not command.hidden) and (command.name.lower()
                                                      == keyword[0].lower()):
@@ -106,20 +107,18 @@ class Help(commands.Cog):
                             except AttributeError:
                                 pass
 
-                            commandFound = True
+                            command_found = True
                             embed = discord.Embed(
                                 title=f"Command: {command.name}",
                                 value=command.help,
-                                inline=False,
-                            )
+                                inline=False)
                             embed.add_field(
                                 name=f"{this_bot.prefix}{command.name}",
                                 value=command_help,
-                                inline=False,
-                            )
+                                inline=False)
                             break
 
-                    if commandFound:
+                    if command_found:
                         break
 
                 # ? If user's request not found
@@ -128,8 +127,7 @@ class Help(commands.Cog):
                         title="Unknown category / command",
                         description="Please try another available" +
                         " command or report it to bot's" + " owner",
-                        colour=helpColour,
-                    )
+                        colour=help_colour)
 
             # ? If user gives more keyword than expected
             elif len(keyword) > 1:
@@ -138,7 +136,7 @@ class Help(commands.Cog):
                     " information about one command at a time.")
                 embed = discord.Embed(title="Too much keyword",
                                       description=description,
-                                      colour=helpColour)
+                                      colour=help_colour)
                 embed.set_image(url=m_tenor.get_gif("Confused"))
 
             # ? If something we don't know happened
@@ -148,8 +146,49 @@ class Help(commands.Cog):
                     description="I don't know how you got here.\n" +
                     "Would you mind to report this to" +
                     " my creator, please?",
-                )
+                    colour=help_colour)
 
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def about(self, ctx):
+        """
+        About this bot
+        
+        ***Usage***: `[p]about`
+        ***Example***: `{0}about`
+        """
+        async with ctx.typing():
+            embed = discord.Embed(
+                title=this_bot.name,
+                description=this_bot.description,
+                colour=help_colour)
+            embed.add_field(
+                name="Bot owner",
+                value=this_bot.owner)
+            embed.add_field(
+                name="Bot version",
+                value=this_bot.version)
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def contact(self, ctx):
+        """
+        Contact bot owner
+        
+        ***Usage***: `[p]contact`
+        ***Example***: `{0}contact`
+        """
+        async with ctx.typing():
+            embed = discord.Embed(
+                title="Contact",
+                description="",
+                colour=help_colour
+                )
+            embed.add_field(
+                name="Discord",
+                value=this_bot.owner
+                )
         await ctx.send(embed=embed)
 
 

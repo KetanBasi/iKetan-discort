@@ -13,8 +13,7 @@ def make_embed(pic, title, image_info, image_links):
         description=pic.desc,
         color=discord.Color.from_rgb(r=pic.color.red,
                                      g=pic.color.green,
-                                     b=pic.color.blue),
-    )
+                                     b=pic.color.blue))
     embed.add_field(name="Image Info", value=image_info)
     embed.add_field(name="Links", value=image_links)
     embed.set_image(url=pic.link.thumbnail)
