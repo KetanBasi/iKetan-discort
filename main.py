@@ -46,10 +46,9 @@ dct_logger.setLevel(logging.DEBUG)
 # * Logging: File Handler
 # * ==================
 log_file = os.path.join(*[my_work_dir, f"{this_bot.name} {c_core.time()}.log"])
-log_file_handler = logging.FileHandler(
-    filename=log_file,
-    encoding="utf-8",
-    mode="w")
+log_file_handler = logging.FileHandler(filename=log_file,
+                                       encoding="utf-8",
+                                       mode="w")
 log_file_handler.setLevel(logging.DEBUG)
 
 # * Logging: Console Handler
@@ -75,13 +74,13 @@ dct_logger.addHandler(log_console_handler)
 
 intent = discord.Intents.all()
 bot = commands.AutoShardedBot(
-    command_prefix=commands.when_mentioned_or(
-        this_bot.prefix,
-        this_bot.admin_prefix),
+    command_prefix=commands.when_mentioned_or(this_bot.prefix,
+                                              this_bot.admin_prefix),
     description=this_bot.description,
     help_command=None,
     intents=intent,
-    shard_count=10)
+    shard_count=10,
+)
 
 # ? ==================
 # ? Main Bot : Load all available modules
@@ -127,13 +126,16 @@ async def on_ready():
             f"ID           : {bot.user.id}",
             f"Owner        : {this_bot.owner}",
             f"Prefix       : {this_bot.prefix}",
-            f"Adm. Prefix  : {this_bot.admin_prefix}"],
+            f"Adm. Prefix  : {this_bot.admin_prefix}",
+        ],
         [
             f"Platform     : {c_core.this_machine}",
             f"Python       : {c_core.this_python}",
-            f"Work Dir     : {c_core.my_work_dir}"],
-        (c_core.time(),),
-        ["Module loaded:"] + module_loaded]
+            f"Work Dir     : {c_core.my_work_dir}",
+        ],
+        (c_core.time(), ),
+        ["Module loaded:"] + module_loaded,
+    ]
     c_core.pretty_print(reports)
 
     # * Bot Activity
@@ -144,9 +146,9 @@ async def on_ready():
     # * This one use discord.Game() to make it looks like playing something
     await bot.change_presence(
         status=discord.Status.online,
-        activity=discord.Game(
-            name="my little ram with rem",
-            start=datetime.now()))
+        activity=discord.Game(name="my little ram with rem",
+                              start=datetime.now()),
+    )
 
     # * This one use discord.Activity() and discord.ActivityType.listening
     # *     as its type of activity, so it looks like listening to something
@@ -163,7 +165,8 @@ async def on_ready():
     _embed = discord.Embed(
         title=c_core.get_random("greetings"),
         description=c_core.time(),
-        colour=discord.Colour.from_rgb(r=255, g=255, b=255))
+        colour=discord.Colour.from_rgb(r=255, g=255, b=255),
+    )
     _embed.set_image(url=m_tenor.test())
     await bot_owner.send(embed=_embed)
     # await cycle.start()
@@ -201,9 +204,8 @@ async def cycle():
     counter += 10
     await bot.change_presence(
         status=discord.Status.online,
-        activity=discord.Game(
-            name=_name,
-            start=datetime.now()))
+        activity=discord.Game(name=_name, start=datetime.now()),
+    )
 
 
 # ? ==================
