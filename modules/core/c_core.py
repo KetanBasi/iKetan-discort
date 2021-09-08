@@ -52,11 +52,12 @@ cycle_status_delay  = 5000
 
 class BotInfo:
     def __init__(
-            self, name, version, description, owner, prefix, admin_prefix,
-            cycle_status, cycle_status_delay, logfile_limit_by,
-            logfile_limit_count, logfile_format):
+            self, name, version, release_version, description, owner,
+            prefix, admin_prefix, cycle_status, cycle_status_delay,
+            logfile_limit_by, logfile_limit_count, logfile_format):
         self.name = name
         self.version = version
+        self.release_version = release_version
         self.description = description
         self.owner = owner
         self.prefix = prefix
@@ -165,6 +166,7 @@ def read_config(file) -> BotInfo:
     new_bot_info = BotInfo(
         config.base.get("name", "bot - iketan"),
         config.base.getfloat("version", "0.1"),
+        config.base.get("release_version", "Dev"),
         config.base.get("description", "an iKetan bot"),
         config.base.get("owner", ""),
         config.base.get("prefix", "ketan."),
@@ -186,6 +188,8 @@ def time():
 # ?     including spaces and always use space instead of tabs
 # ?     for better output result (based on default terminal setting
 # ?     which may vary for each device)
+# ? List for default/left alignment text,
+# ?     Tuple for center alignment text
 def pretty_print(text_list: list):
     max_len = max([len(max(text_block, key=len))
                    for text_block in text_list]) + 2
@@ -197,13 +201,27 @@ def pretty_print(text_list: list):
     bottom_edge = corner_bottom_left + hor_double * max_len + corner_bottom_right
     result_text = top_edge
     for i_block in range(text_list_len):
-        for line in text_list[i_block]:
-            right_spaces = " " * (max_len - len(line) - 1)
-            result_text += ver_double + " " + line + right_spaces + ver_double
-            result_text += "\n"
+        if isinstance(text_list[i_block], list):
+            for line in text_list[i_block]:
+                right_spaces = " " * (max_len - len(line) - 1)
+                result_text += (
+                    ver_double + " " + line + right_spaces +
+                    ver_double + "\n")
 
-        if i_block != text_list_len - 1:
-            result_text += main_divide
+        elif isinstance(text_list[i_block], tuple):
+            for line in text_list[i_block]:
+                len_line = len(line)
+                spaces = " " * ((max_len - len_line) // 2)
+                current_line = spaces + line + spaces
+                current_line += " " if len(current_line) < max_len else ""
+                result_text += (
+                    ver_double + current_line + ver_double + "\n")
+
+        else:
+            raise RuntimeWarning(
+                f"Unexpected block type: {type(text_list[i_block])}")
+
+        result_text += main_divide if i_block != text_list_len-1 else ""
 
     result_text += bottom_edge
     print(result_text)
@@ -282,8 +300,7 @@ def log_limit_exceed():
                 
                 else:
                     raise RuntimeError(
-                        f"Unexpected error, limit by {this_bot.logfile_limit_by}"
-                        )
+                        f"Unexpected error, limit by {this_bot.logfile_limit_by}")
 
                 counter += 1
 

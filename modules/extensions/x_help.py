@@ -30,8 +30,10 @@ class Help(commands.Cog):
         `{0}help fun` or `{0}help gif`
         """
         async with ctx.typing():
-            description = (f"{this_bot.name} v{this_bot.version}" +
-                           f" by {this_bot.owner}\n" + this_bot.description)
+            description = (
+                f"{this_bot.name} v{this_bot.version}" +
+                f" by {this_bot.owner}\n" + this_bot.description +
+                " - " + this_bot.release_version)
 
             # ? If the 'keyword' variable has no value(s)
             if not keyword:
@@ -40,15 +42,21 @@ class Help(commands.Cog):
                     cog_doc = self.client.cogs[cog].__doc__
                     try:
                         cog_doc = cog_doc.strip()
+                        if cog_doc.startswith("hidden"):
+                            continue
                     except AttributeError:
                         pass
-                    cog_desc += f" ► `{cog}` {cog_doc}\n"
-                cog_desc += f"\nUse `{this_bot.prefix}keyword <category>` to gain more information"
-                embed = discord.Embed(title="Command Categories",
-                                      color=help_colour)
-                embed.add_field(name="Categories",
-                                value=cog_desc,
-                                inline=False)
+                    cog_desc += f" ► `{cog}` - {cog_doc}\n"
+                cog_desc += (
+                    f"\nUse `{this_bot.prefix}keyword <category>`"
+                    " to gain more information")
+                embed = discord.Embed(
+                    title="Command Categories",
+                    color=help_colour)
+                embed.add_field(
+                    name="Categories",
+                    value=cog_desc,
+                    inline=False)
 
                 # ? Get all uncategorized commands
                 uncategorized = ""
@@ -134,9 +142,10 @@ class Help(commands.Cog):
                 description = (
                     "Too much keyword. Currently, I could only give you" +
                     " information about one command at a time.")
-                embed = discord.Embed(title="Too much keyword",
-                                      description=description,
-                                      colour=help_colour)
+                embed = discord.Embed(
+                    title="Too much keyword",
+                    description=description,
+                    colour=help_colour)
                 embed.set_image(url=m_tenor.get_gif("Confused"))
 
             # ? If something we don't know happened
@@ -183,12 +192,10 @@ class Help(commands.Cog):
             embed = discord.Embed(
                 title="Contact",
                 description="",
-                colour=help_colour
-                )
+                colour=help_colour)
             embed.add_field(
                 name="Discord",
-                value=this_bot.owner
-                )
+                value=this_bot.owner)
         await ctx.send(embed=embed)
 
 
