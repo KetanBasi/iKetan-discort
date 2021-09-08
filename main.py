@@ -74,16 +74,10 @@ dct_logger.addHandler(log_console_handler)
 # ? ==================
 
 intent = discord.Intents.all()
-# client = discord.Client()
-# bot = commands.Bot(
-#     command_prefix=commands.when_mentioned_or(
-#         this_bot.prefix, this_bot.admin_prefix),
-#     description=this_bot.description,
-#     help_command=None,
-#     intents=intent)
 bot = commands.AutoShardedBot(
     command_prefix=commands.when_mentioned_or(
-        this_bot.prefix, this_bot.admin_prefix),
+        this_bot.prefix,
+        this_bot.admin_prefix),
     description=this_bot.description,
     help_command=None,
     intents=intent,
@@ -122,11 +116,14 @@ async def on_ready():
     # ?     including spaces and always use space instead of tabs
     # ?     for better output result (based on default terminal setting
     # ?     which may vary for each device)
+    # ? List for default/left alignment text,
+    # ?     Tuple for center alignment text
     reports = [
         [f"Logged in as : {bot.user}"],
         [
             f"Name         : {this_bot.name}",
             f"Ver.         : {this_bot.version}",
+            f"Rel. Version : {this_bot.release_version}",
             f"ID           : {bot.user.id}",
             f"Owner        : {this_bot.owner}",
             f"Prefix       : {this_bot.prefix}",
@@ -135,6 +132,7 @@ async def on_ready():
             f"Platform     : {c_core.this_machine}",
             f"Python       : {c_core.this_python}",
             f"Work Dir     : {c_core.my_work_dir}"],
+        (c_core.time(),),
         ["Module loaded:"] + module_loaded]
     c_core.pretty_print(reports)
 
@@ -147,7 +145,7 @@ async def on_ready():
     await bot.change_presence(
         status=discord.Status.online,
         activity=discord.Game(
-            name="my little ram on rem - Pre-Alpha discord bot",
+            name="my little ram with rem",
             start=datetime.now()))
 
     # * This one use discord.Activity() and discord.ActivityType.listening
@@ -182,9 +180,6 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_message(message):
-    # print(message)
-    # print(message.message)
-    # print()
     if bot.user.mentioned_in(message):
         await message.channel.send(f"Need help? Type `{this_bot.prefix}help`")
         return
@@ -204,8 +199,11 @@ async def cycle():
     counter = 1
     _name = f"I'm awake for {counter} secs"
     counter += 10
-    await bot.change_presence(status=discord.Status.online,
-                              activity=discord.Game(name=_name))
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=discord.Game(
+            name=_name,
+            start=datetime.now()))
 
 
 # ? ==================
