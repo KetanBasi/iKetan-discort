@@ -38,9 +38,9 @@ class Fun(commands.Cog):
                 embed = discord.Embed(colour=discord.Colour.green())
             embed.set_image(url=m_tenor.get_gif(keyword))
             embed.set_footer(
-                text=f'Requested by {ctx.message.author.display_name}',
-                icon_url=ctx.message.author.avatar_url_as(size=128)
-                )
+                text=f"Requested by {ctx.message.author.display_name}",
+                icon_url=ctx.message.author.avatar_url_as(size=128),
+            )
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["hugs"], description="Hug someone")
@@ -62,9 +62,9 @@ class Fun(commands.Cog):
                                     colour=discord.Colour.green())
             message.set_image(url=m_tenor.get_gif("hugs"))
             message.set_footer(
-                text=f'Requested by {ctx.message.author.display_name}',
-                icon_url=ctx.message.author.avatar_url_as(size=128)
-                )
+                text=f"Requested by {ctx.message.author.display_name}",
+                icon_url=ctx.message.author.avatar_url_as(size=128),
+            )
         await ctx.send(embed=message)
 
     @commands.command(aliases=["slaps"], description="Slap someone")
@@ -86,9 +86,9 @@ class Fun(commands.Cog):
                                     colour=discord.Colour.green())
             message.set_image(url=m_tenor.get_gif("slaps"))
             message.set_footer(
-                text=f'Requested by {ctx.message.author.display_name}',
-                icon_url=ctx.message.author.avatar_url_as(size=128)
-                )
+                text=f"Requested by {ctx.message.author.display_name}",
+                icon_url=ctx.message.author.avatar_url_as(size=128),
+            )
         await ctx.send(embed=message)
 
     @commands.command(aliases=["flipcoin"], description="Flip a coin")
@@ -117,16 +117,16 @@ class Fun(commands.Cog):
                     count = f"> Head: {head_count}\n> Tail: {tail_count}"
                     embed.add_field(name="Count:", value=count, inline=False)
                 embed.set_footer(
-                    text=f'Flipped by {ctx.message.author.display_name}',
-                    icon_url=ctx.message.author.avatar_url_as(size=128)
-                    )
-            
+                    text=f"Flipped by {ctx.message.author.display_name}",
+                    icon_url=ctx.message.author.avatar_url_as(size=128),
+                )
+
             else:
                 embed = discord.Embed(
                     title="Invalid argument",
                     description="Please insert positive value more than **0**",
-                    colour=discord.Colour.red()
-                    )
+                    colour=discord.Colour.red(),
+                )
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["rolldice", "diceroll"],
@@ -150,29 +150,31 @@ class Fun(commands.Cog):
             if diceSides >= 2:
                 if 1 <= rolls <= 100:
                     results = [
-                        random.randint(1, diceSides) for _ in range(rolls)]
+                        random.randint(1, diceSides) for _ in range(rolls)
+                    ]
                     embed = discord.Embed(title="Dice Rolls",
                                           color=discord.Colour.orange())
                     embed.add_field(
                         name="Result:",
                         value=", ".join([str(num) for num in results]),
-                        inline=False)
+                        inline=False,
+                    )
 
                     if rolls > 1:
                         max_val = max(results)
                         mode = statistics.mode(results)
                         stats = f"> Max: {max_val}\n> Mode: {mode}"
-                        embed.add_field(
-                            name="Statistics:",
-                            value=stats,
-                            inline=False)
-                
+                        embed.add_field(name="Statistics:",
+                                        value=stats,
+                                        inline=False)
+
                 else:
                     embed = discord.Embed(
                         title="Invalid value",
                         description="Too many rolls",
-                        colour=discord.Colour.red())
-            
+                        colour=discord.Colour.red(),
+                    )
+
             else:
                 if diceSides == 1:
                     message = "Is this a joke? I don't have any mobius strip"
@@ -181,19 +183,18 @@ class Fun(commands.Cog):
                     message = "Hmm, use a coin instead"
 
                 else:
-                    message = 'Wait, what?'
-                
+                    message = "Wait, what?"
+
                 embed = discord.Embed(
                     title="Invalid value",
                     description=message,
-                    colour=discord.Colour.red()
-                    )
-                
+                    colour=discord.Colour.red(),
+                )
+
         await ctx.send(embed=embed)
-    
+
     @commands.command()
-    async def bored(self, ctx,
-                    participants: Optional[Union[int, str]], *, _):
+    async def bored(self, ctx, participants: Optional[Union[int, str]], *, _):
         """
         Feel bored? Find new activity
 
@@ -206,14 +207,12 @@ class Fun(commands.Cog):
             embed = discord.Embed(
                 title=activity.activity,
                 description=f"Participants: {activity.participants}\n"
-                f"Type: {activity.type}" + link)
+                f"Type: {activity.type}" + link,
+            )
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def agify(self,
-                    ctx,
-                    *,
-                    name: Optional[str] = None):
+    async def agify(self, ctx, *, name: Optional[str] = None):
         """
         I'll try to predict your age from your name
 
@@ -236,11 +235,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def nationalize(
-            self,
-            ctx,
-            *,
-            name: Optional[str]):
+    async def nationalize(self, ctx, *, name: Optional[str]):
         """
         I'll try to predict your nationality from your name
 
@@ -260,22 +255,23 @@ class Fun(commands.Cog):
             result = m_age_nation.get_nation(name=name)
             embed = discord.Embed(
                 title=f'Nationality prediction for "{name}"',
-                description="Prediction Result:")
-            
+                description="Prediction Result:",
+            )
+
             if len(result) > 0:
                 for nation in result:
                     embed.add_field(name=nation.country_id,
                                     value=nation.probability)
-            
+
             else:
                 embed.add_field(name="Can't predict", value="Try other name")
         await ctx.send(embed=embed)
-    
+
     @commands.command(aliases=["cs"])
     async def codestats(self, ctx, users: Optional[str]):
         """
         Get Code::Stats info
-        
+
         ***Usage***: `[p]codestats [username]`
         ***Example***: `{0}codestats` or `{0}codestats KetanBasi`
         """
@@ -283,17 +279,17 @@ class Fun(commands.Cog):
             if not users:
                 users = ctx.message.author.display_name
             stats = m_code_stats.get_user_stats(users)
-            desc = f"New XP: {stats.new_xp}\n"\
-                   f"Total XP: {stats.total_xp}\n"\
-                   f"Last Code: {stats.last_code}\n"\
-                   f"Highest: {stats.max_stat[0]} ({stats.max_stat[1]})"
-            links = f"[View User's Page]({stats.user_page})\n"\
-                    f"[Code::Stats]({m_code_stats.code_stats})"
+            desc = (f"New XP: {stats.new_xp}\n"
+                    f"Total XP: {stats.total_xp}\n"
+                    f"Last Code: {stats.last_code}\n"
+                    f"Highest: {stats.max_stat[0]} ({stats.max_stat[1]})")
+            links = (f"[View User's Page]({stats.user_page})\n"
+                     f"[Code::Stats]({m_code_stats.code_stats})")
             embed = discord.Embed(
                 title=f"{stats.username}'s stats",
                 description=desc,
-                colour=discord.Colour.from_rgb(r=255, g=255, b=255)
-                )
+                colour=discord.Colour.from_rgb(r=255, g=255, b=255),
+            )
             embed.add_field(name="Links", value=links, inline=False)
             for lang in stats.languages:
                 embed.add_field(name=lang,

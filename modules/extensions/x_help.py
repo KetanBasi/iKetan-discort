@@ -30,10 +30,9 @@ class Help(commands.Cog):
         `{0}help fun` or `{0}help gif`
         """
         async with ctx.typing():
-            description = (
-                f"{this_bot.name} v{this_bot.version}" +
-                f" by {this_bot.owner}\n" + this_bot.description +
-                " - " + this_bot.release_version)
+            description = (f"{this_bot.name} v{this_bot.version}" +
+                           f" by {this_bot.owner}\n" + this_bot.description +
+                           " - " + this_bot.release_version)
 
             # ? If the 'keyword' variable has no value(s)
             if not keyword:
@@ -47,16 +46,13 @@ class Help(commands.Cog):
                     except AttributeError:
                         pass
                     cog_desc += f" ► `{cog}` - {cog_doc}\n"
-                cog_desc += (
-                    f"\nUse `{this_bot.prefix}keyword <category>`"
-                    " to gain more information")
-                embed = discord.Embed(
-                    title="Command Categories",
-                    color=help_colour)
-                embed.add_field(
-                    name="Categories",
-                    value=cog_desc,
-                    inline=False)
+                cog_desc += (f"\nUse `{this_bot.prefix}keyword <category>`"
+                             " to gain more information")
+                embed = discord.Embed(title="Command Categories",
+                                      color=help_colour)
+                embed.add_field(name="Categories",
+                                value=cog_desc,
+                                inline=False)
 
                 # ? Get all uncategorized commands
                 uncategorized = ""
@@ -77,7 +73,8 @@ class Help(commands.Cog):
                     embed.add_field(
                         name="Uncategorized commands",
                         value=uncategorized.format(this_bot.prefix),
-                        inline=False)
+                        inline=False,
+                    )
 
                 # ? Add bot description
                 embed.add_field(name="About", value=description, inline=False)
@@ -96,11 +93,13 @@ class Help(commands.Cog):
                         embed = discord.Embed(
                             title=f"Category: {cog}",
                             description=self.client.cogs[cog].__doc__,
-                            colour=help_colour)
+                            colour=help_colour,
+                        )
                         embed.add_field(
                             name="Available Commands:",
                             value=available_commands,
-                            inline=False)
+                            inline=False,
+                        )
                         break
 
                     command_found = False
@@ -119,11 +118,13 @@ class Help(commands.Cog):
                             embed = discord.Embed(
                                 title=f"Command: {command.name}",
                                 value=command.help,
-                                inline=False)
+                                inline=False,
+                            )
                             embed.add_field(
                                 name=f"{this_bot.prefix}{command.name}",
                                 value=command_help,
-                                inline=False)
+                                inline=False,
+                            )
                             break
 
                     if command_found:
@@ -135,7 +136,8 @@ class Help(commands.Cog):
                         title="Unknown category / command",
                         description="Please try another available" +
                         " command or report it to bot's" + " owner",
-                        colour=help_colour)
+                        colour=help_colour,
+                    )
 
             # ? If user gives more keyword than expected
             elif len(keyword) > 1:
@@ -145,7 +147,8 @@ class Help(commands.Cog):
                 embed = discord.Embed(
                     title="Too much keyword",
                     description=description,
-                    colour=help_colour)
+                    colour=help_colour,
+                )
                 embed.set_image(url=m_tenor.get_gif("Confused"))
 
             # ? If something we don't know happened
@@ -155,15 +158,16 @@ class Help(commands.Cog):
                     description="I don't know how you got here.\n" +
                     "Would you mind to report this to" +
                     " my creator, please?",
-                    colour=help_colour)
+                    colour=help_colour,
+                )
 
         await ctx.send(embed=embed)
-    
+
     @commands.command()
     async def about(self, ctx):
         """
         About this bot
-        
+
         ***Usage***: `[p]about`
         ***Example***: `{0}about`
         """
@@ -171,31 +175,25 @@ class Help(commands.Cog):
             embed = discord.Embed(
                 title=this_bot.name,
                 description=this_bot.description,
-                colour=help_colour)
-            embed.add_field(
-                name="Bot owner",
-                value=this_bot.owner)
-            embed.add_field(
-                name="Bot version",
-                value=this_bot.version)
+                colour=help_colour,
+            )
+            embed.add_field(name="Bot owner", value=this_bot.owner)
+            embed.add_field(name="Bot version", value=this_bot.version)
         await ctx.send(embed=embed)
-    
+
     @commands.command()
     async def contact(self, ctx):
         """
         Contact bot owner
-        
+
         ***Usage***: `[p]contact`
         ***Example***: `{0}contact`
         """
         async with ctx.typing():
-            embed = discord.Embed(
-                title="Contact",
-                description="",
-                colour=help_colour)
-            embed.add_field(
-                name="Discord",
-                value=this_bot.owner)
+            embed = discord.Embed(title="Contact",
+                                  description="",
+                                  colour=help_colour)
+            embed.add_field(name="Discord", value=this_bot.owner)
         await ctx.send(embed=embed)
 
 

@@ -57,13 +57,13 @@ class Messaging(commands.Cog):
         not_implemented = True
         if not_implemented:
             raise NotImplementedError("delete command is not implemented")
-        
+
         if target:
             async with ctx.typing():
                 # location = ctx.message.
                 if isinstance(target, str) and target.startswith("https://"):
                     target = target.split("/")[-1]
-    
+
                 # message = commands.MessageConverter.convert(ctx=ctx, argument=target)
                 # message.delete()
             await ctx.message.delete()
