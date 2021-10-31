@@ -8,7 +8,7 @@ Windows: Check python.org/downloads
 ```bash
 sudo apt install python3
 ```
-Site note: Python 3.9+ ***Cannot*** be used on Windlws 7 or earlier
+Site note: Python 3.9+ ***Cannot*** be used on Windows 7 or earlier
 
 Install all required Python packages listed in requirements.txt
 ```bash
